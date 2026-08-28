@@ -1,12 +1,31 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { LogOut } from "lucide-react";
 import { NAV } from "@/lib/nav";
+import { createClient } from "@/lib/supabase/client";
 
-export default function AppShell({ children }: { children: React.ReactNode }) {
+export default function AppShell({
+  children,
+  email,
+}: {
+  children: React.ReactNode;
+  email: string;
+}) {
   const pathname = usePathname();
+  const router = useRouter();
+  const [signingOut, setSigningOut] = useState(false);
   const active = NAV.find((n) => n.href === pathname) ?? NAV[0];
+
+  async function handleSignOut() {
+    setSigningOut(true);
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    router.push("/login");
+    router.refresh();
+  }
 
   return (
     <div className="shell">
@@ -36,6 +55,19 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           })}
         </nav>
         <div className="side-foot">
+          <div className="user-row">
+            <span className="user-email" title={email}>
+              {email}
+            </span>
+            <button
+              className="signout-btn"
+              onClick={handleSignOut}
+              disabled={signingOut}
+              title="Deconectare"
+            >
+              <LogOut size={15} />
+            </button>
+          </div>
           <div className="depot-tag">Depozit Giurgiu · RO-BG</div>
         </div>
       </aside>

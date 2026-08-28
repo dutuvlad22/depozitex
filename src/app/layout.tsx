@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Space_Grotesk, Inter, IBM_Plex_Mono } from "next/font/google";
-import AppShell from "@/components/app-shell";
 import "./globals.css";
 
 const spaceGrotesk = Space_Grotesk({
@@ -32,9 +31,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="ro"
       className={`${spaceGrotesk.variable} ${inter.variable} ${plexMono.variable}`}
     >
-      <body>
-        <AppShell>{children}</AppShell>
-      </body>
+      <body>{children}</body>
     </html>
   );
 }
