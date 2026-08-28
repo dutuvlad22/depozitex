@@ -1,36 +1,86 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# DepoziteX
 
-## Getting Started
+WMS (Warehouse Management System) pentru fulfillment — Next.js (App Router, TypeScript) conectat la [Supabase](https://supabase.com).
 
-First, run the development server:
+## Stack
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- **Next.js 16** (App Router, TypeScript, Turbopack)
+- **Supabase** (`@supabase/supabase-js` + `@supabase/ssr`) — auth & date
+- **lucide-react** — iconografie
+
+## Structura
+
+```
+src/
+  app/
+    layout.tsx        # root layout: fonturi + AppShell
+    page.tsx           # /            -> Panou
+    receptie/page.tsx  # /receptie
+    stoc/page.tsx       # /stoc
+    comenzi/page.tsx    # /comenzi
+    expediere/page.tsx  # /expediere
+    retururi/page.tsx   # /retururi
+    globals.css         # design tokens (navy + amber) si layout
+  components/
+    app-shell.tsx       # sidebar + topbar
+    empty-state.tsx      # placeholder pentru paginile in lucru
+  lib/
+    nav.ts               # config navigatie sidebar
+    supabase/
+      client.ts          # client Supabase (Client Components)
+      server.ts           # client Supabase (Server Components / Actions)
+      middleware.ts        # refresh sesiune auth
+middleware.ts             # foloseste lib/supabase/middleware.ts
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Paginile din `src/app/*` sunt deocamdata goale (doar un placeholder) — layout-ul cu sidebar (Panou, Receptie, Stoc, Comenzi, Expediere, Retururi) e gata de folosit.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Setup local
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. Instaleaza dependintele:
 
-## Learn More
+   ```bash
+   npm install
+   ```
 
-To learn more about Next.js, take a look at the following resources:
+2. Copiaza `.env.local.example` in `.env.local` (deja facut in acest repo local) si completeaza cheile din Supabase:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+   ```bash
+   cp .env.local.example .env.local
+   ```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+   Variabile necesare (Supabase Dashboard → Project Settings → API):
 
-## Deploy on Vercel
+   - `NEXT_PUBLIC_SUPABASE_URL`
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+   - `SUPABASE_SERVICE_ROLE_KEY` (optional, doar server-side, pentru operatii care ocolesc RLS)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+3. Porneste serverul de development:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+   ```bash
+   npm run dev
+   ```
+
+   Aplicatia ruleaza pe [http://localhost:3000](http://localhost:3000).
+
+## Schema bazei de date
+
+In folderul parinte al acestui proiect exista deja `depozitex-schema.sql` si `depozitex-onboarding.sql` — ruleaza-le in Supabase SQL Editor (Dashboard → SQL Editor) pentru a crea tabelele necesare (clienti, produse, comenzi, receptii, retururi etc).
+
+## Deploy pe Vercel
+
+Vezi instructiunile complete in mesajul de chat / sau:
+
+1. `git init` (daca nu exista deja) + primul commit.
+2. Creeaza un repo pe GitHub si fa push.
+3. Pe [vercel.com](https://vercel.com) → **Add New Project** → importa repo-ul.
+4. Framework Preset: **Next.js** (detectat automat).
+5. Adauga variabilele de mediu (`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, optional `SUPABASE_SERVICE_ROLE_KEY`) in **Project Settings → Environment Variables**.
+6. **Deploy**.
+
+## Scripturi
+
+- `npm run dev` — development (Turbopack)
+- `npm run build` — build de productie
+- `npm start` — porneste build-ul de productie local
+- `npm run lint` — ESLint
