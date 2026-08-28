@@ -17,7 +17,12 @@ export default function AppShell({
   const pathname = usePathname();
   const router = useRouter();
   const [signingOut, setSigningOut] = useState(false);
-  const active = NAV.find((n) => n.href === pathname) ?? NAV[0];
+
+  function isNavActive(href: string) {
+    return href === pathname || (href !== "/" && pathname.startsWith(`${href}/`));
+  }
+
+  const active = NAV.find((n) => isNavActive(n.href)) ?? NAV[0];
 
   async function handleSignOut() {
     setSigningOut(true);
@@ -41,7 +46,7 @@ export default function AppShell({
         <nav>
           {NAV.map((n) => {
             const Icon = n.icon;
-            const isActive = n.href === pathname;
+            const isActive = isNavActive(n.href);
             return (
               <Link
                 key={n.href}

@@ -529,6 +529,34 @@ td.actions {
   text-align: center;
 }
 
+/* NAVIGARE IN PAGINA (ex. detaliu depozit) */
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  align-self: flex-start;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+}
+.back-link:hover {
+  color: var(--ink);
+}
+.page-heading {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+.page-heading h2 {
+  font-family: var(--font-heading);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--ink);
+}
+.page-heading .muted {
+  font-size: 13.5px;
+}
+
 /* PANELS / EMPTY STATE (placeholder pentru paginile in constructie) */
 .panel {
   background: var(--card);
