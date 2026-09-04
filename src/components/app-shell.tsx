@@ -40,7 +40,7 @@ export default function AppShell({
           <div className="brand-mark">DX</div>
           <div>
             <div className="brand-name">DepoziteX</div>
-            <div className="brand-sub">Fulfillment WMS</div>
+            <div className="brand-sub">Fulfillment EWA</div>
           </div>
         </div>
         <nav>
