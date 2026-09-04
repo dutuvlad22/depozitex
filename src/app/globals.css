@@ -646,6 +646,107 @@ td.actions {
   color: var(--amber);
 }
 
+/* KPI (Panou) */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 12px;
+}
+.kpi {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 15px 15px 14px;
+  position: relative;
+}
+.kpi-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  background: var(--paper);
+  display: grid;
+  place-items: center;
+  color: var(--muted);
+  margin-bottom: 12px;
+}
+.kpi-val {
+  font-family: var(--font-heading);
+  font-size: 26px;
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1;
+}
+.kpi-label {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 5px;
+}
+.kpi.amber .kpi-icon {
+  background: #fef3d9;
+  color: #b57d00;
+}
+.kpi.green .kpi-icon {
+  background: #d9f2e9;
+  color: var(--green);
+}
+.kpi.red .kpi-icon {
+  background: #fbe0e0;
+  color: var(--red);
+}
+.kpi.red .kpi-val {
+  color: var(--red);
+}
+
+/* PANOU: alerte + activitate */
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.alert-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 0;
+  border-top: 1px solid var(--line);
+}
+.alert-row:first-of-type {
+  border-top: none;
+}
+.alert-name {
+  margin-left: 10px;
+  font-size: 13px;
+}
+.alert-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+}
+.act-row {
+  display: flex;
+  gap: 12px;
+  padding: 8px 0;
+  border-top: 1px solid var(--line);
+  font-size: 13px;
+}
+.act-row:first-of-type {
+  border-top: none;
+}
+.act-time {
+  color: var(--muted);
+  font-size: 12px;
+  flex-shrink: 0;
+}
+@media (max-width: 1100px) {
+  .kpi-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .two-col {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* LINII FORMULAR (ex. receptie: produs + locatie + cantitate) */
 .lines-head {
   font-size: 12.5px;
@@ -857,7 +958,27 @@ td.actions {
   .side nav {
     flex-direction: row;
   }
+  /* Ramane vizibil si accesibil (buton deconectare) chiar daca navul
+     scroleaza orizontal — fara asta, pe mobil nu exista alt mod sa
+     te deloghezi. */
   .side-foot {
+    display: flex;
+    align-items: center;
+    margin: 0 0 0 auto;
+    padding: 8px 10px;
+    border-top: none;
+    flex-shrink: 0;
+    position: sticky;
+    right: 0;
+    background: var(--ink);
+    z-index: 1;
+  }
+  .user-row {
+    margin-bottom: 0;
+    gap: 0;
+  }
+  .user-email,
+  .role-tag {
     display: none;
   }
 }
