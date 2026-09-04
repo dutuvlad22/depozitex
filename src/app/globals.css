@@ -503,6 +503,31 @@ a {
   background: transparent;
 }
 
+/* RADIO (decizie retur) */
+.radio-row {
+  display: flex;
+  gap: 8px;
+  max-width: 480px;
+}
+.radio {
+  flex: 1;
+  padding: 9px;
+  border: 1px solid var(--line);
+  background: #fff;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 13px;
+  color: var(--muted);
+  font-weight: 500;
+}
+.radio.on {
+  border-color: var(--amber);
+  background: #fef8ec;
+  color: var(--ink);
+  font-weight: 600;
+}
+
 /* TABEL */
 .table-wrap {
   background: #fff;
