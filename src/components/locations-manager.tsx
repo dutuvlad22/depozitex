@@ -15,10 +15,12 @@ export default function LocationsManager({
   organizationId,
   warehouseId,
   initialLocations,
+  isAdmin,
 }: {
   organizationId: string;
   warehouseId: string;
   initialLocations: LocationRow[];
+  isAdmin: boolean;
 }) {
   const [locations, setLocations] = useState<LocationRow[]>(initialLocations);
   const [code, setCode] = useState("");
@@ -141,7 +143,7 @@ export default function LocationsManager({
                   {new Date(l.created_at).toLocaleDateString("ro-RO")}
                 </td>
                 <td className="actions">
-                  {confirmId === l.id ? (
+                  {!isAdmin ? null : confirmId === l.id ? (
                     <span className="confirm-delete">
                       <span className="small muted">Sigur?</span>
                       <button

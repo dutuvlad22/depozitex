@@ -5,7 +5,7 @@ import ProductsManager, {
 import { requireOrgContext } from "@/lib/org-context";
 
 export default async function ProdusePage() {
-  const { supabase, organizationId } = await requireOrgContext();
+  const { supabase, organizationId, isAdmin } = await requireOrgContext();
 
   const [{ data: clients }, { data: products }] = await Promise.all([
     supabase
@@ -25,6 +25,7 @@ export default async function ProdusePage() {
       organizationId={organizationId}
       clients={(clients ?? []) as ClientOption[]}
       initialProducts={(products ?? []) as unknown as ProductRow[]}
+      isAdmin={isAdmin}
     />
   );
 }

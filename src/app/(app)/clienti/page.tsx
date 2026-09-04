@@ -1,31 +1,8 @@
-import { redirect } from "next/navigation";
 import ClientsManager, { type ClientRow } from "@/components/clients-manager";
-import { createClient } from "@/lib/supabase/server";
+import { requireOrgContext } from "@/lib/org-context";
 
 export default async function ClientiPage() {
-  const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) {
-    redirect("/login");
-  }
-
-  const { data: membership } = await supabase
-    .from("memberships")
-    .select("organization_id")
-    .eq("user_id", user.id)
-    .limit(1)
-    .maybeSingle();
-
-  // (app)/layout.tsx deja garanteaza ca exista un membership inainte sa
-  // randeze pagina; verificarea de aici e doar o plasa de siguranta.
-  if (!membership) {
-    redirect("/");
-  }
-
-  const organizationId = membership.organization_id as string;
+  const { supabase, organizationId, isAdmin } = await requireOrgContext();
 
   const { data: clients } = await supabase
     .from("clients")
@@ -37,6 +14,7 @@ export default async function ClientiPage() {
     <ClientsManager
       organizationId={organizationId}
       initialClients={(clients ?? []) as ClientRow[]}
+      isAdmin={isAdmin}
     />
   );
 }

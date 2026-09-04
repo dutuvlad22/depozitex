@@ -1,6 +1,8 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
+export type OrgRole = "owner" | "admin" | "operator" | "viewer";
+
 /**
  * Helper pentru Server Components din grupul (app): confirma userul si
  * organizatia curenta (owner/membru). (app)/layout.tsx deja garanteaza ca
@@ -19,7 +21,7 @@ export async function requireOrgContext() {
 
   const { data: membership } = await supabase
     .from("memberships")
-    .select("organization_id")
+    .select("organization_id, role")
     .eq("user_id", user.id)
     .limit(1)
     .maybeSingle();
@@ -28,9 +30,13 @@ export async function requireOrgContext() {
     redirect("/");
   }
 
+  const role = membership.role as OrgRole;
+
   return {
     supabase,
     user,
     organizationId: membership.organization_id as string,
+    role,
+    isAdmin: role === "owner" || role === "admin",
   };
 }

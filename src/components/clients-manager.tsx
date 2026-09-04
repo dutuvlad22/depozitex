@@ -22,9 +22,11 @@ function formatDate(iso: string) {
 export default function ClientsManager({
   organizationId,
   initialClients,
+  isAdmin,
 }: {
   organizationId: string;
   initialClients: ClientRow[];
+  isAdmin: boolean;
 }) {
   const [clients, setClients] = useState<ClientRow[]>(initialClients);
   const [name, setName] = useState("");
@@ -137,7 +139,7 @@ export default function ClientsManager({
                 <td className="muted">{c.contact || "—"}</td>
                 <td className="muted small">{formatDate(c.created_at)}</td>
                 <td className="actions">
-                  {confirmId === c.id ? (
+                  {!isAdmin ? null : confirmId === c.id ? (
                     <span className="confirm-delete">
                       <span className="small muted">Sigur?</span>
                       <button

@@ -47,11 +47,13 @@ export default function OrdersManager({
   clients,
   products,
   initialOrders,
+  isAdmin,
 }: {
   organizationId: string;
   clients: ClientOption[];
   products: ProductOption[];
   initialOrders: OrderRow[];
+  isAdmin: boolean;
 }) {
   const [orders, setOrders] = useState<OrderRow[]>(initialOrders);
   const [clientId, setClientId] = useState(clients[0]?.id ?? "");
@@ -60,6 +62,8 @@ export default function OrdersManager({
   const [error, setError] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
   const [advancingId, setAdvancingId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
   const clientProducts = products.filter((p) => p.client_id === clientId);
 
@@ -188,6 +192,24 @@ export default function OrdersManager({
     }
   }
 
+  async function handleDelete(order: OrderRow) {
+    setError(null);
+    setDeletingId(order.id);
+
+    const supabase = createClient();
+    const { error: rpcError } = await supabase.rpc("delete_order", { p_order_id: order.id });
+
+    setDeletingId(null);
+    setConfirmDeleteId(null);
+
+    if (rpcError) {
+      setError(rpcError.message);
+      return;
+    }
+
+    setOrders((prev) => prev.filter((o) => o.id !== order.id));
+  }
+
   if (clients.length === 0 || products.length === 0) {
     return (
       <div className="stack">
@@ -307,6 +329,16 @@ export default function OrdersManager({
                       <span className="muted small">
                         {new Date(o.created_at).toLocaleDateString("ro-RO")}
                       </span>
+                      {isAdmin && confirmDeleteId !== o.id && (
+                        <button
+                          className="icon-btn"
+                          onClick={() => setConfirmDeleteId(o.id)}
+                          title="Sterge comanda"
+                          style={{ marginLeft: "auto" }}
+                        >
+                          <Trash2 size={13} />
+                        </button>
+                      )}
                     </div>
                     <div className="order-client">{o.clients?.name ?? "—"}</div>
                     <div className="order-lines">
@@ -322,15 +354,35 @@ export default function OrdersManager({
                         <Truck size={12} /> {shipment.awb} · {shipment.courier}
                       </div>
                     )}
-                    {status !== "expediat" && (
-                      <button
-                        className="btn small full"
-                        onClick={() => handleAdvance(o)}
-                        disabled={advancingId === o.id}
-                      >
-                        {advancingId === o.id ? "Se proceseaza..." : STATUS_NEXT[status]}{" "}
-                        {advancingId !== o.id && <ArrowRight size={14} />}
-                      </button>
+                    {confirmDeleteId === o.id ? (
+                      <span className="confirm-delete" style={{ marginTop: 9 }}>
+                        <span className="small muted">Stergi comanda?</span>
+                        <button
+                          className="btn small ghost"
+                          onClick={() => setConfirmDeleteId(null)}
+                          disabled={deletingId === o.id}
+                        >
+                          Nu
+                        </button>
+                        <button
+                          className="btn small danger"
+                          onClick={() => handleDelete(o)}
+                          disabled={deletingId === o.id}
+                        >
+                          {deletingId === o.id ? "..." : "Da, sterge"}
+                        </button>
+                      </span>
+                    ) : (
+                      status !== "expediat" && (
+                        <button
+                          className="btn small full"
+                          onClick={() => handleAdvance(o)}
+                          disabled={advancingId === o.id}
+                        >
+                          {advancingId === o.id ? "Se proceseaza..." : STATUS_NEXT[status]}{" "}
+                          {advancingId !== o.id && <ArrowRight size={14} />}
+                        </button>
+                      )
                     )}
                   </div>
                 );

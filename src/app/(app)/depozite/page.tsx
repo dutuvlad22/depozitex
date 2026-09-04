@@ -2,7 +2,7 @@ import WarehousesManager, { type WarehouseRow } from "@/components/warehouses-ma
 import { requireOrgContext } from "@/lib/org-context";
 
 export default async function DepozitePage() {
-  const { supabase, organizationId } = await requireOrgContext();
+  const { supabase, organizationId, isAdmin } = await requireOrgContext();
 
   const { data: warehouses } = await supabase
     .from("warehouses")
@@ -14,6 +14,7 @@ export default async function DepozitePage() {
     <WarehousesManager
       organizationId={organizationId}
       initialWarehouses={(warehouses ?? []) as WarehouseRow[]}
+      isAdmin={isAdmin}
     />
   );
 }

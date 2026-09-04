@@ -24,10 +24,12 @@ export default function ProductsManager({
   organizationId,
   clients,
   initialProducts,
+  isAdmin,
 }: {
   organizationId: string;
   clients: ClientOption[];
   initialProducts: ProductRow[];
+  isAdmin: boolean;
 }) {
   const [products, setProducts] = useState<ProductRow[]>(initialProducts);
   const [clientId, setClientId] = useState(clients[0]?.id ?? "");
@@ -200,7 +202,7 @@ export default function ProductsManager({
                   {new Date(p.created_at).toLocaleDateString("ro-RO")}
                 </td>
                 <td className="actions">
-                  {confirmId === p.id ? (
+                  {!isAdmin ? null : confirmId === p.id ? (
                     <span className="confirm-delete">
                       <span className="small muted">Sigur?</span>
                       <button

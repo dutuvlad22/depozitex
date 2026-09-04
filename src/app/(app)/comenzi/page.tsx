@@ -6,7 +6,7 @@ import OrdersManager, {
 import { requireOrgContext } from "@/lib/org-context";
 
 export default async function ComenziPage() {
-  const { supabase, organizationId } = await requireOrgContext();
+  const { supabase, organizationId, isAdmin } = await requireOrgContext();
 
   const [{ data: clients }, { data: products }, { data: orders }] = await Promise.all([
     supabase
@@ -35,6 +35,7 @@ export default async function ComenziPage() {
       clients={(clients ?? []) as ClientOption[]}
       products={(products ?? []) as ProductOption[]}
       initialOrders={(orders ?? []) as unknown as OrderRow[]}
+      isAdmin={isAdmin}
     />
   );
 }

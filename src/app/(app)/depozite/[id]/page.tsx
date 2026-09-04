@@ -10,7 +10,7 @@ export default async function DepozitDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const { supabase, organizationId } = await requireOrgContext();
+  const { supabase, organizationId, isAdmin } = await requireOrgContext();
 
   const { data: warehouse } = await supabase
     .from("warehouses")
@@ -42,6 +42,7 @@ export default async function DepozitDetailPage({
         organizationId={organizationId}
         warehouseId={warehouse.id}
         initialLocations={(locations ?? []) as LocationRow[]}
+        isAdmin={isAdmin}
       />
     </div>
   );

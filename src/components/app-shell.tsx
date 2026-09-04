@@ -7,12 +7,21 @@ import { LogOut } from "lucide-react";
 import { NAV } from "@/lib/nav";
 import { createClient } from "@/lib/supabase/client";
 
+const ROLE_LABEL: Record<string, string> = {
+  owner: "Owner",
+  admin: "Admin",
+  operator: "Angajat",
+  viewer: "Vizualizare",
+};
+
 export default function AppShell({
   children,
   email,
+  role,
 }: {
   children: React.ReactNode;
   email: string;
+  role: string;
 }) {
   const pathname = usePathname();
   const router = useRouter();
@@ -73,7 +82,7 @@ export default function AppShell({
               <LogOut size={15} />
             </button>
           </div>
-          <div className="depot-tag">Depozit Giurgiu · RO-BG</div>
+          <div className="role-tag">{ROLE_LABEL[role] ?? role}</div>
         </div>
       </aside>
 

@@ -21,16 +21,21 @@ export default async function AppGroupLayout({
 
   const { data: membership } = await supabase
     .from("memberships")
-    .select("organization_id")
+    .select("organization_id, role")
     .eq("user_id", user.id)
     .limit(1)
     .maybeSingle();
 
-  // Userul nu are inca nicio organizatie -> ii cerem sa creeze una,
-  // in loc sa randam aplicatia (fara organizatie nu e ce afisa).
+  // Userul nu are inca nicio organizatie -> ii cerem sa creeze una
+  // sau sa se alature cu un cod de invitatie, in loc sa randam
+  // aplicatia (fara organizatie nu e ce afisa).
   if (!membership) {
     return <OnboardingScreen />;
   }
 
-  return <AppShell email={user.email ?? ""}>{children}</AppShell>;
+  return (
+    <AppShell email={user.email ?? ""} role={membership.role as string}>
+      {children}
+    </AppShell>
+  );
 }

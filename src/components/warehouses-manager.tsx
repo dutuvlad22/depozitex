@@ -15,9 +15,11 @@ export type WarehouseRow = {
 export default function WarehousesManager({
   organizationId,
   initialWarehouses,
+  isAdmin,
 }: {
   organizationId: string;
   initialWarehouses: WarehouseRow[];
+  isAdmin: boolean;
 }) {
   const [warehouses, setWarehouses] = useState<WarehouseRow[]>(initialWarehouses);
   const [name, setName] = useState("");
@@ -132,7 +134,7 @@ export default function WarehousesManager({
                   {new Date(w.created_at).toLocaleDateString("ro-RO")}
                 </td>
                 <td className="actions">
-                  {confirmId === w.id ? (
+                  {isAdmin && confirmId === w.id ? (
                     <span className="confirm-delete">
                       <span className="small muted">Sigur?</span>
                       <button
@@ -155,13 +157,15 @@ export default function WarehousesManager({
                       <Link href={`/depozite/${w.id}`} className="btn small ghost">
                         <MapPinned size={13} /> Locatii
                       </Link>
-                      <button
-                        className="icon-btn"
-                        onClick={() => setConfirmId(w.id)}
-                        title="Sterge depozitul"
-                      >
-                        <Trash2 size={15} />
-                      </button>
+                      {isAdmin && (
+                        <button
+                          className="icon-btn"
+                          onClick={() => setConfirmId(w.id)}
+                          title="Sterge depozitul"
+                        >
+                          <Trash2 size={15} />
+                        </button>
+                      )}
                     </span>
                   )}
                 </td>

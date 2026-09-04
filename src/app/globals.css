@@ -192,12 +192,20 @@ a {
   opacity: 0.5;
   cursor: not-allowed;
 }
-.depot-tag {
+.depot-tag,
+.role-tag {
   font-size: 11px;
   color: #6b7488;
   border-top: 1px solid #2a3654;
   padding-top: 14px;
   letter-spacing: 0.02em;
+}
+.role-tag {
+  display: inline-block;
+  color: var(--amber);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 /* AUTH (login / inregistrare) */

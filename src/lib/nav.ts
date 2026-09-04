@@ -8,6 +8,7 @@ import {
   Users,
   Warehouse,
   Package,
+  UserCog,
   type LucideIcon,
 } from "lucide-react";
 
@@ -27,4 +28,5 @@ export const NAV: NavItem[] = [
   { href: "/comenzi", label: "Comenzi", icon: ClipboardList },
   { href: "/expediere", label: "Expediere", icon: Truck },
   { href: "/retururi", label: "Retururi", icon: RotateCcw },
+  { href: "/echipa", label: "Echipa", icon: UserCog },
 ];
