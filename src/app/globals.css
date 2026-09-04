@@ -464,7 +464,8 @@ a {
   font-weight: 600;
   color: var(--ink2);
 }
-.field input {
+.field input,
+.field select {
   padding: 9px 11px;
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -475,7 +476,8 @@ a {
   outline: none;
   min-width: 220px;
 }
-.field input:focus {
+.field input:focus,
+.field select:focus {
   border-color: var(--amber);
 }
 
