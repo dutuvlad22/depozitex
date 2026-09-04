@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
-import { PackagePlus, Plus, Trash2 } from "lucide-react";
+import { PackagePlus, Plus, Search, Trash2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
 export type ClientOption = { id: string; name: string };
@@ -50,9 +50,22 @@ export default function ReceiptsManager({
   const [lines, setLines] = useState<LineDraft[]>([emptyLine()]);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [query, setQuery] = useState("");
 
   const clientProducts = products.filter((p) => p.client_id === clientId);
   const warehouseLocations = locations.filter((l) => l.warehouse_id === warehouseId);
+
+  const filteredReceipts = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return receipts;
+    return receipts.filter((r) =>
+      [r.clients?.name, r.warehouses?.name, r.reference, r.status]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase()
+        .includes(q)
+    );
+  }, [receipts, query]);
 
   function updateLine(index: number, patch: Partial<LineDraft>) {
     setLines((prev) => prev.map((l, i) => (i === index ? { ...l, ...patch } : l)));
@@ -271,6 +284,18 @@ export default function ReceiptsManager({
         </form>
       </div>
 
+      {receipts.length > 0 && (
+        <div className="search">
+          <Search size={15} />
+          <input
+            type="text"
+            placeholder="Cauta dupa client, depozit sau referinta..."
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+        </div>
+      )}
+
       <div className="table-wrap">
         <table>
           <thead>
@@ -283,7 +308,7 @@ export default function ReceiptsManager({
             </tr>
           </thead>
           <tbody>
-            {receipts.map((r) => (
+            {filteredReceipts.map((r) => (
               <tr key={r.id}>
                 <td className="muted small">
                   {new Date(r.created_at).toLocaleDateString("ro-RO")}
@@ -302,6 +327,13 @@ export default function ReceiptsManager({
                   <PackagePlus size={18} style={{ marginBottom: 6 }} />
                   <br />
                   Nicio receptie inca. Inregistreaza prima mai sus.
+                </td>
+              </tr>
+            )}
+            {receipts.length > 0 && filteredReceipts.length === 0 && (
+              <tr>
+                <td colSpan={5} className="empty">
+                  Nicio receptie nu corespunde cautarii.
                 </td>
               </tr>
             )}

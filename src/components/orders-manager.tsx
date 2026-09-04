@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { ArrowRight, ClipboardList, Plus, Trash2, Truck } from "lucide-react";
+import { useMemo, useState } from "react";
+import { ArrowRight, ClipboardList, Plus, Search, Trash2, Truck } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
 export type ClientOption = { id: string; name: string };
@@ -64,8 +64,26 @@ export default function OrdersManager({
   const [advancingId, setAdvancingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const [query, setQuery] = useState("");
 
   const clientProducts = products.filter((p) => p.client_id === clientId);
+
+  const filteredOrders = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return orders;
+    return orders.filter((o) =>
+      [
+        o.order_no,
+        o.clients?.name,
+        ...o.order_lines.map((l) => l.products?.sku),
+        ...o.order_lines.map((l) => l.products?.name),
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase()
+        .includes(q)
+    );
+  }, [orders, query]);
 
   function updateLine(index: number, patch: Partial<LineDraft>) {
     setLines((prev) => prev.map((l, i) => (i === index ? { ...l, ...patch } : l)));
@@ -311,9 +329,25 @@ export default function OrdersManager({
         </form>
       </div>
 
+      {orders.length > 0 && (
+        <div className="search">
+          <Search size={15} />
+          <input
+            type="text"
+            placeholder="Cauta dupa numar comanda, client sau produs..."
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+        </div>
+      )}
+
+      {orders.length > 0 && filteredOrders.length === 0 && (
+        <div className="empty">Nicio comanda nu corespunde cautarii.</div>
+      )}
+
       <div className="board">
         {STATUS_FLOW.map((status) => {
-          const col = orders.filter((o) => o.status === status);
+          const col = filteredOrders.filter((o) => o.status === status);
           return (
             <div key={status} className="col">
               <div className="col-head">
