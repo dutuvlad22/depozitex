@@ -481,6 +481,28 @@ a {
   border-color: var(--amber);
 }
 
+/* SEARCH */
+.search {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  padding: 10px 13px;
+  color: var(--muted);
+  max-width: 420px;
+}
+.search input {
+  border: none;
+  outline: none;
+  font-family: inherit;
+  font-size: 13.5px;
+  width: 100%;
+  color: var(--text);
+  background: transparent;
+}
+
 /* TABEL */
 .table-wrap {
   background: #fff;
@@ -529,6 +551,17 @@ td.actions {
   font-size: 13px;
   padding: 20px 0;
   text-align: center;
+}
+.loc {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  background: var(--paper);
+  padding: 3px 8px;
+  border-radius: 6px;
+  color: var(--ink2);
 }
 
 /* NAVIGARE IN PAGINA (ex. detaliu depozit) */

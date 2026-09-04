@@ -1,14 +1,15 @@
-import { Boxes } from "lucide-react";
-import EmptyState from "@/components/empty-state";
+import StockView, { type InventoryRow } from "@/components/stock-view";
+import { requireOrgContext } from "@/lib/org-context";
 
-export default function StocPage() {
-  return (
-    <div className="stack">
-      <EmptyState
-        icon={Boxes}
-        title="Stoc"
-        description="Tabelul de stoc pe SKU, locatii si praguri de reaprovizionare va fi adaugat aici."
-      />
-    </div>
-  );
+export default async function StocPage() {
+  const { supabase, organizationId } = await requireOrgContext();
+
+  const { data: inventory } = await supabase
+    .from("inventory")
+    .select(
+      "id, quantity, updated_at, products(sku, name, reorder_point, clients(name)), locations(code, warehouses(name))"
+    )
+    .eq("organization_id", organizationId);
+
+  return <StockView initialRows={(inventory ?? []) as unknown as InventoryRow[]} />;
 }
