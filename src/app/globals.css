@@ -982,3 +982,13 @@ td.actions {
     display: none;
   }
 }
+
+/* SCANARE RECEPTIE (camera) */
+.scan-video {
+  width: 100%;
+  max-width: 480px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: #000;
+  display: block;
+}

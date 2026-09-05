@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { PackagePlus, Plus, Search, Trash2 } from "lucide-react";
+import { Eye, PackagePlus, Plus, ScanLine, Search, Trash2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
 export type ClientOption = { id: string; name: string };
@@ -133,7 +133,7 @@ export default function ReceiptsManager({
       {
         id: data as string,
         reference: reference.trim() || null,
-        status: "confirmat",
+        status: "draft",
         created_at: new Date().toISOString(),
         clients: { name: clientName },
         warehouses: { name: warehouseName },
@@ -281,6 +281,10 @@ export default function ReceiptsManager({
           <button className="btn primary" type="submit" disabled={saving} style={{ marginTop: 16 }}>
             {saving ? "Se inregistreaza..." : "Inregistreaza receptia"}
           </button>
+          <div className="hint" style={{ marginTop: 10 }}>
+            <ScanLine size={14} />
+            Dupa inregistrare, receptia ramane &bdquo;In verificare&rdquo; pana scanezi fizic bucatile primite.
+          </div>
         </form>
       </div>
 
@@ -305,6 +309,7 @@ export default function ReceiptsManager({
               <th>Depozit</th>
               <th>Referinta</th>
               <th>Status</th>
+              <th></th>
             </tr>
           </thead>
           <tbody>
@@ -317,13 +322,26 @@ export default function ReceiptsManager({
                 <td>{r.warehouses?.name ?? "—"}</td>
                 <td className="muted">{r.reference || "—"}</td>
                 <td>
-                  <span className="pill ok">{r.status === "confirmat" ? "Confirmat" : "Draft"}</span>
+                  <span className={`pill ${r.status === "confirmat" ? "ok" : "scazut"}`}>
+                    {r.status === "confirmat" ? "Confirmat" : "In verificare"}
+                  </span>
+                </td>
+                <td>
+                  {r.status === "confirmat" ? (
+                    <Link href={`/receptie/${r.id}`} className="auth-linklike">
+                      <Eye size={13} style={{ verticalAlign: -2 }} /> Detalii
+                    </Link>
+                  ) : (
+                    <Link href={`/receptie/${r.id}`} className="auth-linklike">
+                      <ScanLine size={13} style={{ verticalAlign: -2 }} /> Verifica
+                    </Link>
+                  )}
                 </td>
               </tr>
             ))}
             {receipts.length === 0 && (
               <tr>
-                <td colSpan={5} className="empty">
+                <td colSpan={6} className="empty">
                   <PackagePlus size={18} style={{ marginBottom: 6 }} />
                   <br />
                   Nicio receptie inca. Inregistreaza prima mai sus.
@@ -332,7 +350,7 @@ export default function ReceiptsManager({
             )}
             {receipts.length > 0 && filteredReceipts.length === 0 && (
               <tr>
-                <td colSpan={5} className="empty">
+                <td colSpan={6} className="empty">
                   Nicio receptie nu corespunde cautarii.
                 </td>
               </tr>
