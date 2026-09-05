@@ -1,7 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { ArrowRight, ClipboardList, Plus, Search, Trash2, Truck } from "lucide-react";
+import Link from "next/link";
+import { ArrowRight, ClipboardList, Plus, ScanLine, Search, Trash2, Truck } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
 export type ClientOption = { id: string; name: string };
@@ -27,7 +28,6 @@ const STATUS_LABEL: Record<string, string> = {
 };
 const STATUS_NEXT: Record<string, string> = {
   nou: "Preia la pick",
-  de_pregatit: "Marcheaza ambalat",
   ambalat: "Genereaza AWB",
 };
 
@@ -406,6 +406,10 @@ export default function OrdersManager({
                           {deletingId === o.id ? "..." : "Da, sterge"}
                         </button>
                       </span>
+                    ) : status === "de_pregatit" ? (
+                      <Link href={`/comenzi/${o.id}`} className="btn small ghost full">
+                        <ScanLine size={14} /> Verifica pick-ul
+                      </Link>
                     ) : (
                       status !== "expediat" && (
                         <button
