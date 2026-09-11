@@ -21,7 +21,7 @@ const plexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "DepoziteX — Fulfillment WMS",
+  title: "DepoziteX — Fulfillment EWA",
   description: "Panou de administrare depozit: receptie, stoc, comenzi, expediere si retururi.",
 };
 
