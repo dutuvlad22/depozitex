@@ -40,3 +40,36 @@ export async function requireOrgContext() {
     isAdmin: role === "owner" || role === "admin",
   };
 }
+
+/**
+ * Varianta pentru Route Handlers: nu foloseste redirect() (nu are sens in
+ * afara randarii de pagini), intoarce null daca userul nu e autentificat
+ * sau nu are membership — apelantul decide ce raspuns HTTP trimite.
+ */
+export async function getOrgContext() {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return null;
+
+  const { data: membership } = await supabase
+    .from("memberships")
+    .select("organization_id, role")
+    .eq("user_id", user.id)
+    .limit(1)
+    .maybeSingle();
+
+  if (!membership) return null;
+
+  const role = membership.role as OrgRole;
+
+  return {
+    supabase,
+    user,
+    organizationId: membership.organization_id as string,
+    role,
+    isAdmin: role === "owner" || role === "admin",
+  };
+}

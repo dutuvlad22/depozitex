@@ -33,8 +33,11 @@ export default async function AppGroupLayout({
     return <OnboardingScreen />;
   }
 
+  const role = membership.role as string;
+  const isAdmin = role === "owner" || role === "admin";
+
   return (
-    <AppShell email={user.email ?? ""} role={membership.role as string}>
+    <AppShell email={user.email ?? ""} role={role} isAdmin={isAdmin}>
       {children}
     </AppShell>
   );

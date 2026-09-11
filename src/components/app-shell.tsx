@@ -18,10 +18,12 @@ export default function AppShell({
   children,
   email,
   role,
+  isAdmin,
 }: {
   children: React.ReactNode;
   email: string;
   role: string;
+  isAdmin: boolean;
 }) {
   const pathname = usePathname();
   const router = useRouter();
@@ -31,6 +33,7 @@ export default function AppShell({
     return href === pathname || (href !== "/" && pathname.startsWith(`${href}/`));
   }
 
+  const visibleNav = NAV.filter((n) => !n.adminOnly || isAdmin);
   const active = NAV.find((n) => isNavActive(n.href)) ?? NAV[0];
 
   async function handleSignOut() {
@@ -53,7 +56,7 @@ export default function AppShell({
           </div>
         </div>
         <nav>
-          {NAV.map((n) => {
+          {visibleNav.map((n) => {
             const Icon = n.icon;
             const isActive = isNavActive(n.href);
             return (

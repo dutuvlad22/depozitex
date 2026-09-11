@@ -28,7 +28,6 @@ const STATUS_LABEL: Record<string, string> = {
 };
 const STATUS_NEXT: Record<string, string> = {
   nou: "Preia la pick",
-  ambalat: "Genereaza AWB",
 };
 
 const ORDER_SELECT =
@@ -409,6 +408,10 @@ export default function OrdersManager({
                     ) : status === "de_pregatit" ? (
                       <Link href={`/comenzi/${o.id}`} className="btn small ghost full">
                         <ScanLine size={14} /> Verifica pick-ul
+                      </Link>
+                    ) : status === "ambalat" ? (
+                      <Link href={`/comenzi/${o.id}`} className="btn small ghost full">
+                        <Truck size={14} /> Genereaza AWB
                       </Link>
                     ) : (
                       status !== "expediat" && (

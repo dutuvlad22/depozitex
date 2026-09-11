@@ -12,6 +12,7 @@ import {
   ScanLine,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import CourierShippingPanel from "@/components/courier-shipping-panel";
 
 export type PickLineRow = {
   id: string;
@@ -394,6 +395,10 @@ export default function OrderPickScanner({
             </div>
           )}
         </div>
+      )}
+
+      {(localStatus === "ambalat" || localStatus === "expediat") && (
+        <CourierShippingPanel orderId={orderId} />
       )}
     </div>
   );
