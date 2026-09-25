@@ -1,10 +1,12 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-const PUBLIC_PATHS = ["/login", "/register"];
+const PUBLIC_PATHS = ["/login", "/register", "/forgot-password"];
+// Accesibile oricui, fara redirect nici pentru userul logat (linkuri din email).
+const OPEN_PATHS = ["/auth/callback"];
 
-function isPublicPath(pathname: string) {
-  return PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`));
+function matches(paths: string[], pathname: string) {
+  return paths.some((p) => pathname === p || pathname.startsWith(`${p}/`));
 }
 
 /**
@@ -47,7 +49,8 @@ export async function updateSession(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const { pathname } = request.nextUrl;
-  const publicPath = isPublicPath(pathname);
+  if (matches(OPEN_PATHS, pathname)) return supabaseResponse;
+  const publicPath = matches(PUBLIC_PATHS, pathname);
 
   if (!user && !publicPath) {
     const url = request.nextUrl.clone();

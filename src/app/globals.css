@@ -324,6 +324,16 @@ a {
   background: #d9f2e9;
   color: var(--green);
 }
+.auth-forgot {
+  margin-top: 12px;
+  font-size: 13px;
+  text-align: center;
+}
+.auth-forgot a {
+  color: var(--muted);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
 .auth-switch {
   margin-top: 18px;
   padding-top: 16px;

@@ -20,7 +20,11 @@ function LoginForm() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(
+    searchParams.get("error") === "link"
+      ? "Linkul din email a expirat sau a fost deja folosit. Cere unul nou."
+      : null
+  );
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -80,6 +84,10 @@ function LoginForm() {
           {loading ? "Se conecteaza..." : "Autentificare"}
         </button>
       </form>
+
+      <div className="auth-forgot">
+        <Link href="/forgot-password">Am uitat parola</Link>
+      </div>
 
       {error && <div className="auth-msg err">{error}</div>}
 
