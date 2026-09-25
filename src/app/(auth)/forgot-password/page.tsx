@@ -2,7 +2,18 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/client";
+import { createClient } from "@supabase/supabase-js";
+
+// Client separat, fara PKCE: cu PKCE linkul din email merge doar in browserul
+// care a cerut resetarea. Emailul trimite spre /auth/confirm cu token_hash
+// (vezi sablonul de pe server), care functioneaza in orice browser/dispozitiv.
+function createRecoveryClient() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    { auth: { flowType: "implicit", persistSession: false, autoRefreshToken: false, detectSessionInUrl: false } }
+  );
+}
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
@@ -15,10 +26,7 @@ export default function ForgotPasswordPage() {
     setError(null);
     setLoading(true);
 
-    const supabase = createClient();
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/auth/callback?next=/reset-password`,
-    });
+    const { error } = await createRecoveryClient().auth.resetPasswordForEmail(email);
 
     setLoading(false);
     if (error) {
@@ -46,7 +54,6 @@ export default function ForgotPasswordPage() {
       {sent ? (
         <div className="auth-msg ok">
           Daca exista un cont cu adresa {email}, ai primit un email cu linkul de resetare.
-          Deschide-l in acest browser.
         </div>
       ) : (
         <form onSubmit={handleSubmit}>

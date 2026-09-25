@@ -3,7 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 
 const PUBLIC_PATHS = ["/login", "/register", "/forgot-password"];
 // Accesibile oricui, fara redirect nici pentru userul logat (linkuri din email).
-const OPEN_PATHS = ["/auth/callback"];
+const OPEN_PATHS = ["/auth/callback", "/auth/confirm"];
 
 function matches(paths: string[], pathname: string) {
   return paths.some((p) => pathname === p || pathname.startsWith(`${p}/`));
