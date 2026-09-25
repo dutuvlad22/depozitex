@@ -12,13 +12,20 @@ export async function GET(request: NextRequest) {
   // doar cai interne, ca linkul sa nu poata redirectiona pe alt site
   const safeNext = next && next.startsWith("/") && !next.startsWith("//") ? next : "/";
 
+  // nextUrl (nu request.url) pastreaza domeniul public cand rulam in spatele lui Caddy
+  const url = request.nextUrl.clone();
+  url.search = "";
+
   if (code) {
     const supabase = await createClient();
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     if (!error) {
-      return NextResponse.redirect(new URL(safeNext, request.url));
+      url.pathname = safeNext;
+      return NextResponse.redirect(url);
     }
   }
 
-  return NextResponse.redirect(new URL("/login?error=link", request.url));
+  url.pathname = "/login";
+  url.searchParams.set("error", "link");
+  return NextResponse.redirect(url);
 }
