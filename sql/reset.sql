@@ -1,8 +1,10 @@
 -- ============================================================
 -- DepoziteX WMS — Reset schema
--- Sterge TOT ce creeaza depozitex-schema.sql, ca sa poti rula
--- scriptul din nou de la zero. ATENTIE: sterge si datele!
--- Ruleaza acest fisier, apoi depozitex-schema.sql.
+-- Sterge TOT ce creeaza fisierele 01..09, ca sa poti rula
+-- schema din nou de la zero. ATENTIE: sterge si datele!
+-- Ruleaza acest fisier, apoi 01..09 in ordine.
+-- Un fisier nou care adauga tabele trebuie adaugat si aici, altfel
+-- tabela lui supravietuieste reset-ului fara cheile straine.
 -- ============================================================
 
 -- trigger + functii
@@ -11,6 +13,9 @@ drop function if exists public.handle_new_user() cascade;
 drop function if exists public.is_member(uuid) cascade;
 
 -- tabele (cascade sterge si policy-urile RLS, indexii, FK-urile dependente)
+drop table if exists courier_manager_settings cascade;  -- 09
+drop table if exists order_pick_lines cascade;          -- 08
+drop table if exists invites          cascade;          -- 06
 drop table if exists usage_counters   cascade;
 drop table if exists subscriptions    cascade;
 drop table if exists stock_movements  cascade;
