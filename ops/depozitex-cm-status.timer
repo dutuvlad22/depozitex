@@ -1,0 +1,9 @@
+[Unit]
+Description=DepoziteX: status AWB din Courier Manager la fiecare 30 de minute
+
+[Timer]
+OnCalendar=*:0/30
+Persistent=true
+
+[Install]
+WantedBy=timers.target

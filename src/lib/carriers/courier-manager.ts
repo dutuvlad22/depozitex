@@ -14,18 +14,37 @@ import type {
   CreateShipmentResult,
   LabelResult,
   ServiceType,
+  ShipmentStatusesResult,
   ShipmentStatusResult,
   TestConnectionResult,
 } from "./types";
 
 export type CmCredentials = { baseUrl: string; apiKey: string };
 
+// Statusurile vin in engleza sau in limba contului (contul DepoziteX foloseste
+// romana: initial, neridicat, in_curs, avizat, livrat, returnat, anulat, exceptie).
 const CANCELLED_STATUSES = new Set(["canceled", "cancelled", "anulat"]);
+export const FINAL_STATUSES = new Set([
+  ...CANCELLED_STATUSES,
+  "delivered",
+  "livrat",
+  "returned",
+  "returnat",
+]);
 
 export function isCancelledStatus(status: string | null | undefined) {
   if (!status) return false;
   return CANCELLED_STATUSES.has(status.toLowerCase());
 }
+
+type CmStatusEntry = {
+  no?: string;
+  request_no?: string;
+  status?: string;
+  code?: string;
+  code_name?: string;
+  date?: number;
+};
 
 type CmEnvelope = {
   ok: boolean;
@@ -157,8 +176,30 @@ export function createCourierManagerAdapter(creds: CmCredentials): CarrierAdapte
       if (!res.ok) {
         return { ok: false, error: res.message ?? "Nu am putut prelua statusul.", raw: res.raw };
       }
-      const data = res.data as { status?: string } | undefined;
-      return { ok: true, status: data?.status ?? "necunoscut", raw: res.raw };
+      const data = res.data as CmStatusEntry | undefined;
+      // Un AWB inexistent vine tot cu status "done", dar cu `no` gol.
+      if (!data?.no) {
+        return { ok: false, error: "AWB-ul nu a fost gasit in Courier Manager.", raw: res.raw };
+      }
+      return { ok: true, status: data.status || "necunoscut", raw: data };
+    },
+
+    async getStatuses(awbs: string[]): Promise<ShipmentStatusesResult> {
+      const res = await callCm(creds, "get_status", { awbnos: awbs.join(",") });
+      if (!res.ok) {
+        return { ok: false, error: res.message ?? "Nu am putut prelua statusurile." };
+      }
+
+      // Cu `awbnos`, `data` e o lista; normalizam si cazul unui singur obiect.
+      const entries = (Array.isArray(res.data) ? res.data : [res.data]) as CmStatusEntry[];
+      const results: Record<string, { status: string; raw: unknown }> = {};
+      for (const entry of entries) {
+        // `request_no` e numarul cerut; `no` e gol cand AWB-ul nu exista.
+        if (entry?.request_no && entry.no) {
+          results[entry.request_no] = { status: entry.status || "necunoscut", raw: entry };
+        }
+      }
+      return { ok: true, results };
     },
 
     async getLabel(awb: string): Promise<LabelResult> {

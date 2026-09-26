@@ -25,6 +25,7 @@ type ShipmentInfo = {
   status: string | null;
   error: string | null;
   updated_at: string | null;
+  status_checked_at: string | null;
 };
 
 type ServiceType = { name: string; value: string };
@@ -45,6 +46,8 @@ const STATUS_TONE: Record<string, string> = {
   neridicat: "scazut",
   draft: "scazut",
   initial: "scazut",
+  returned: "red",
+  returnat: "red",
   canceled: "red",
   cancelled: "red",
   anulat: "red",
@@ -405,6 +408,17 @@ export default function CourierShippingPanel({ orderId }: { orderId: string }) {
               </button>
             </div>
           </div>
+
+          <div className="hint" style={{ marginTop: 8 }}>
+            {shipment.status_checked_at
+              ? `Status verificat la ${new Date(shipment.status_checked_at).toLocaleString("ro-RO")}. Se actualizeaza automat la fiecare 30 de minute.`
+              : "Statusul se actualizeaza automat la fiecare 30 de minute."}
+          </div>
+          {shipment.error && !error && (
+            <div className="auth-msg err" style={{ marginTop: 8 }}>
+              {shipment.error}
+            </div>
+          )}
 
           <a
             className="btn ghost small"

@@ -29,6 +29,11 @@ export type ShipmentStatusResult =
   | { ok: true; status: string; raw: unknown }
   | { ok: false; error: string; raw: unknown };
 
+// Cheia din `results` e numarul AWB cerut; un AWB negasit la curier lipseste.
+export type ShipmentStatusesResult =
+  | { ok: true; results: Record<string, { status: string; raw: unknown }> }
+  | { ok: false; error: string };
+
 export type LabelResult =
   | { ok: true; contentType: string; bytes: ArrayBuffer }
   | { ok: false; error: string };
@@ -44,5 +49,6 @@ export interface CarrierAdapter {
   listServiceTypes(): Promise<ServiceType[]>;
   createShipment(serviceType: string, input: CreateShipmentInput): Promise<CreateShipmentResult>;
   getStatus(awb: string): Promise<ShipmentStatusResult>;
+  getStatuses(awbs: string[]): Promise<ShipmentStatusesResult>;
   getLabel(awb: string): Promise<LabelResult>;
 }

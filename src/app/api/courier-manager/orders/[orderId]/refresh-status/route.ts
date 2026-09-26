@@ -48,12 +48,15 @@ export async function POST(
     return NextResponse.json({ error: result.error }, { status: 502 });
   }
 
+  const now = new Date().toISOString();
   await ctx.supabase
     .from("shipments")
     .update({
       status: result.status,
       raw_response: result.raw as object,
-      updated_at: new Date().toISOString(),
+      error: null,
+      status_checked_at: now,
+      updated_at: now,
     })
     .eq("order_id", orderId);
 

@@ -50,7 +50,7 @@ export async function GET(
 
   const { data: shipment } = await ctx.supabase
     .from("shipments")
-    .select("awb, status, error, updated_at")
+    .select("awb, status, error, updated_at, status_checked_at")
     .eq("order_id", orderId)
     .maybeSingle();
 

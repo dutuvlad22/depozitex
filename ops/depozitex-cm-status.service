@@ -1,0 +1,11 @@
+# Actualizeaza statusul AWB-urilor active din Courier Manager.
+# Pornit de depozitex-cm-status.timer. Instalare: vezi ops/README.md.
+[Unit]
+Description=DepoziteX: actualizare status AWB din Courier Manager
+After=depozitex.service
+
+[Service]
+Type=oneshot
+# CRON_SECRET vine din configuratia comuna a aplicatiei.
+EnvironmentFile=/root/projects/depozitex-shared/.env.local
+ExecStart=/usr/bin/curl -fsS -m 300 -X POST -H "Authorization: Bearer ${CRON_SECRET}" http://127.0.0.1:3000/api/internal/cm-status-sync
