@@ -73,8 +73,8 @@ Content-Type: application/json`}</pre>
   "expediata_la": "…", "creata_la": "…",
   "produse": [{ "sku": "TRICOU-M-NEGRU", "cantitate": 2 }] }`}</pre>
       <p>
-        Statusuri: <code>nou</code> → <code>de_pregatit</code> → <code>ambalat</code> →{" "}
-        <code>expediat</code>. AWB-ul apare dupa expediere.
+        Statusuri: <code>nou</code> → <code>de_pregatit</code> (in picking) → <code>la_ambalare</code> →{" "}
+        <code>ambalat</code> → <code>expediat</code>. AWB-ul apare dupa expediere.
       </p>
 
       <h3>3. Stocul clientului</h3>

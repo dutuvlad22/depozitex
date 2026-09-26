@@ -13,6 +13,9 @@ drop function if exists public.handle_new_user() cascade;
 drop function if exists public.is_member(uuid) cascade;
 
 -- tabele (cascade sterge si policy-urile RLS, indexii, FK-urile dependente)
+drop table if exists cart_run_boxes   cascade;          -- 15
+drop table if exists cart_runs        cascade;          -- 15
+drop table if exists carts            cascade;          -- 15
 drop table if exists platform_settings cascade;         -- 13
 drop table if exists client_api_keys  cascade;          -- 12
 drop table if exists courier_manager_settings cascade;  -- 09

@@ -3,17 +3,18 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import {
-  ArrowRight,
   ClipboardList,
+  Eye,
+  PackageCheck,
   Plus,
-  ScanLine,
   Search,
+  ShoppingCart,
   Trash2,
   Truck,
-  Undo2,
   UserRound,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { boxLabel } from "@/lib/cart-codes";
 
 export type ClientOption = { id: string; name: string };
 export type ProductOption = { id: string; sku: string; name: string; client_id: string };
@@ -27,23 +28,20 @@ export type OrderRow = {
   assignee: { email: string | null } | null;
   order_lines: { id: string; quantity: number; products: { sku: string; name: string } | null }[];
   shipments: { awb: string; courier: string }[];
+  // cutiile in care a stat comanda (inclusiv ture de carucior inchise)
+  cart_run_boxes: { box_no: number; cart_runs: { status: string; carts: { code: string } | null } | null }[];
 };
 
 type LineDraft = { productId: string; quantity: string };
 
-const STATUS_FLOW = ["nou", "de_pregatit", "ambalat", "expediat"];
+const STATUS_FLOW = ["nou", "de_pregatit", "la_ambalare", "ambalat", "expediat"];
 const STATUS_LABEL: Record<string, string> = {
   nou: "Nou",
-  de_pregatit: "De pregatit",
+  de_pregatit: "In picking",
+  la_ambalare: "La ambalare",
   ambalat: "Ambalat",
   expediat: "Expediat",
 };
-const STATUS_NEXT: Record<string, string> = {
-  nou: "Preia la pick",
-};
-
-const ORDER_SELECT =
-  "id, order_no, status, created_at, source, clients(name), assignee:profiles!orders_assigned_to_fkey(email), order_lines(id, quantity, products(sku, name)), shipments(awb, courier)";
 
 function emptyLine(): LineDraft {
   return { productId: "", quantity: "1" };
@@ -72,7 +70,6 @@ export default function OrdersManager({
   const [lines, setLines] = useState<LineDraft[]>([emptyLine()]);
   const [error, setError] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
-  const [advancingId, setAdvancingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [query, setQuery] = useState("");
@@ -178,6 +175,7 @@ export default function OrdersManager({
         source: "manual",
         clients: { name: clientName },
         assignee: null,
+        cart_run_boxes: [],
         order_lines: payloadLines.map((l, i) => ({
           id: `local-${i}`,
           quantity: l.quantity,
@@ -195,42 +193,6 @@ export default function OrdersManager({
 
     setOrderNo(suggestOrderNo());
     setLines([emptyLine()]);
-  }
-
-  async function handleAdvance(order: OrderRow) {
-    setError(null);
-    setAdvancingId(order.id);
-
-    const supabase = createClient();
-    const { error: rpcError } = await supabase.rpc("advance_order", { p_order_id: order.id });
-
-    if (rpcError) {
-      setAdvancingId(null);
-      setError(rpcError.message);
-      return;
-    }
-
-    const { data, error: fetchError } = await supabase
-      .from("orders")
-      .select(ORDER_SELECT)
-      .eq("id", order.id)
-      .single();
-
-    setAdvancingId(null);
-
-    if (!fetchError && data) {
-      setOrders((prev) => prev.map((o) => (o.id === order.id ? (data as unknown as OrderRow) : o)));
-    }
-  }
-
-  async function handleRelease(order: OrderRow) {
-    setError(null);
-    const { error: rpcError } = await createClient().rpc("release_order", { p_order_id: order.id });
-    if (rpcError) {
-      setError(rpcError.message);
-      return;
-    }
-    setOrders((prev) => prev.map((o) => (o.id === order.id ? { ...o, assignee: null } : o)));
   }
 
   async function handleDelete(order: OrderRow) {
@@ -379,6 +341,7 @@ export default function OrdersManager({
               </div>
               {col.map((o) => {
                 const shipment = o.shipments[0];
+                const box = o.cart_run_boxes.find((b) => b.cart_runs && b.cart_runs.status !== "inchis");
                 return (
                   <div key={o.id} className="order-card">
                     <div className="order-top">
@@ -416,21 +379,18 @@ export default function OrdersManager({
                         <Truck size={12} /> {shipment.awb} · {shipment.courier}
                       </div>
                     )}
-                    {status === "de_pregatit" && (
+                    {box && (
+                      <div className="order-picker">
+                        <ShoppingCart size={12} />
+                        <span className="order-picker-name mono">
+                          {box.cart_runs?.carts?.code} · {boxLabel(box.box_no)}
+                        </span>
+                      </div>
+                    )}
+                    {status === "de_pregatit" && o.assignee?.email && (
                       <div className="order-picker">
                         <UserRound size={12} />
-                        <span className="order-picker-name">
-                          {o.assignee?.email ?? "Asteapta un picker"}
-                        </span>
-                        {isAdmin && o.assignee && (
-                          <button
-                            className="icon-btn"
-                            title="Elibereaza comanda: urmatorul picker liber o preia de unde a ramas"
-                            onClick={() => handleRelease(o)}
-                          >
-                            <Undo2 size={13} />
-                          </button>
-                        )}
+                        <span className="order-picker-name">{o.assignee.email}</span>
                       </div>
                     )}
                     {confirmDeleteId === o.id ? (
@@ -451,25 +411,23 @@ export default function OrdersManager({
                           {deletingId === o.id ? "..." : "Da, sterge"}
                         </button>
                       </span>
-                    ) : status === "de_pregatit" ? (
-                      <Link href={`/comenzi/${o.id}`} className="btn small ghost full">
-                        <ScanLine size={14} /> Verifica pick-ul
+                    ) : status === "nou" ? (
+                      <div className="order-hint">Asteapta un carucior</div>
+                    ) : status === "la_ambalare" && box?.cart_runs?.carts ? (
+                      <Link
+                        href={`/ambalare?carucior=${box.cart_runs.carts.code}&cutie=${box.box_no}`}
+                        className="btn small ghost full"
+                      >
+                        <PackageCheck size={14} /> Ambaleaza
                       </Link>
                     ) : status === "ambalat" ? (
                       <Link href={`/comenzi/${o.id}`} className="btn small ghost full">
                         <Truck size={14} /> Genereaza AWB
                       </Link>
                     ) : (
-                      status !== "expediat" && (
-                        <button
-                          className="btn small full"
-                          onClick={() => handleAdvance(o)}
-                          disabled={advancingId === o.id}
-                        >
-                          {advancingId === o.id ? "Se proceseaza..." : STATUS_NEXT[status]}{" "}
-                          {advancingId !== o.id && <ArrowRight size={14} />}
-                        </button>
-                      )
+                      <Link href={`/comenzi/${o.id}`} className="btn small ghost full">
+                        <Eye size={14} /> Detalii
+                      </Link>
                     )}
                   </div>
                 );

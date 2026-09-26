@@ -11,8 +11,10 @@ import {
   Users,
   Warehouse,
   Package,
+  PackageCheck,
   UserCog,
   Settings,
+  ShoppingCart,
   type LucideIcon,
 } from "lucide-react";
 
@@ -26,6 +28,7 @@ export type NavItem = {
 export const NAV: NavItem[] = [
   { href: "/", label: "Panou", icon: LayoutDashboard },
   { href: "/picking", label: "Picking", icon: ScanBarcode },
+  { href: "/ambalare", label: "Ambalare", icon: PackageCheck },
   { href: "/clienti", label: "Clienti", icon: Users },
   { href: "/produse", label: "Produse", icon: Package },
   { href: "/depozite", label: "Depozite", icon: Warehouse },
@@ -37,5 +40,6 @@ export const NAV: NavItem[] = [
   { href: "/rapoarte", label: "Rapoarte", icon: ChartColumn },
   { href: "/echipa", label: "Echipa", icon: UserCog },
   { href: "/setari/curier", label: "Setari curier", icon: Settings, adminOnly: true },
+  { href: "/setari/carucioare", label: "Carucioare", icon: ShoppingCart, adminOnly: true },
   { href: "/setari/api", label: "API clienti", icon: KeyRound, adminOnly: true },
 ];

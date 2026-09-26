@@ -250,7 +250,7 @@ export async function getOpenOrders(supabase: SupabaseClient, orgId: string) {
     .from("orders")
     .select("id, order_no, status, created_at, clients(name)")
     .eq("organization_id", orgId)
-    .in("status", ["nou", "de_pregatit", "ambalat"])
+    .in("status", ["nou", "de_pregatit", "la_ambalare", "ambalat"])
     .order("created_at", { ascending: true })
     .limit(200);
   if (error) throw new Error(error.message);

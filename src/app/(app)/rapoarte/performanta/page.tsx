@@ -6,7 +6,12 @@ import { getOpenOrders, getPerformance, hoursSince } from "@/lib/reports/data";
 import { fmtDateTime, fmtHours, fmtInt } from "@/lib/reports/format";
 import { formatDay, periodLabel, resolvePeriod, type SearchParams } from "@/lib/reports/period";
 
-const ORDER_STATUS: Record<string, string> = { nou: "Nou", de_pregatit: "De pregatit", ambalat: "Ambalat" };
+const ORDER_STATUS: Record<string, string> = {
+  nou: "Nou",
+  de_pregatit: "In picking",
+  la_ambalare: "La ambalare",
+  ambalat: "Ambalat",
+};
 
 export default async function PerformantaPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
   const sp = await searchParams;

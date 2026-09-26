@@ -819,7 +819,7 @@ td.actions {
 /* BOARD (comenzi kanban) */
 .board {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 14px;
   align-items: start;
 }
@@ -1363,4 +1363,175 @@ table.compact tbody td {
   text-overflow: ellipsis;
   white-space: nowrap;
   flex: 1;
+}
+
+/* CARUCIOARE: picking pe carucior + ambalare */
+.picking-full {
+  width: 100%;
+  margin-top: 8px;
+}
+.picking-manual {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+  margin-top: 4px;
+}
+.picking-manual input {
+  flex: 1;
+  min-width: 0;
+  padding: 11px 12px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  font-size: 15px;
+  text-transform: uppercase;
+}
+.put-box {
+  border-radius: 14px;
+  padding: 16px;
+  text-align: center;
+  background: var(--ink);
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.put-box .muted {
+  color: #aab3c6;
+}
+.put-box.idle {
+  background: var(--card);
+  color: var(--muted);
+  border: 1px dashed var(--line);
+  font-size: 14px;
+}
+.put-box-label {
+  font-family: var(--font-heading);
+  font-size: 34px;
+  font-weight: 700;
+  color: var(--amber);
+  letter-spacing: 0.02em;
+}
+.pick-boxes {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 8px;
+}
+.pick-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 6px 4px 10px;
+  border-radius: 8px;
+  background: var(--paper);
+}
+.pick-box .mono {
+  flex: 1;
+}
+.pick-box.done {
+  background: #d9f2e9;
+}
+.pick-box.active {
+  outline: 2px solid var(--amber);
+}
+.pick-btn.small {
+  width: 32px;
+  height: 32px;
+}
+.pick-row.pick-group {
+  grid-template-columns: auto 1fr;
+  align-items: start;
+}
+.pick-row.pack-row {
+  grid-template-columns: 1fr auto;
+}
+.pack-short {
+  color: var(--red);
+  margin-top: 2px;
+}
+.box-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  gap: 8px;
+}
+.box-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--amber);
+  background: var(--card);
+  min-width: 0;
+}
+.box-tile span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.box-tile.done {
+  border-left-color: var(--green);
+  background: #f4fbf8;
+}
+.order-hint {
+  margin-top: 9px;
+  font-size: 12px;
+  color: var(--muted);
+  text-align: center;
+}
+
+/* ETICHETE (printabile) */
+.labels-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.labels-sheet {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 12px;
+}
+.label {
+  border: 1px dashed #b8c0cc;
+  border-radius: 8px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  background: #fff;
+  break-inside: avoid;
+}
+.label-cart {
+  grid-column: span 2;
+}
+.label-text {
+  font-family: var(--font-mono);
+  font-size: 20px;
+  font-weight: 700;
+  color: #000;
+}
+.label-cart .label-text {
+  font-size: 30px;
+}
+.label-sub {
+  font-size: 11px;
+  color: #555;
+}
+@media print {
+  .side,
+  .topbar,
+  .labels-toolbar {
+    display: none !important;
+  }
+  .main,
+  .content {
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  body {
+    background: #fff;
+  }
 }
