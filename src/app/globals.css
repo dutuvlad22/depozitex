@@ -1111,3 +1111,73 @@ table.compact tbody td {
   padding-left: 12px;
   padding-right: 12px;
 }
+.source-tag {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 1px 6px;
+  border-radius: 5px;
+  background: #e6ecf7;
+  color: var(--ink2);
+}
+
+/* API CLIENTI */
+.new-key {
+  margin-top: 16px;
+  padding: 14px 16px;
+  border-radius: 10px;
+  background: #fef3d9;
+  border: 1px solid #f5d98f;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 13px;
+}
+.new-key-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.new-key-row code {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  background: #fff;
+  padding: 7px 10px;
+  border-radius: 7px;
+  border: 1px solid var(--line);
+  word-break: break-all;
+}
+.api-docs {
+  font-size: 13.5px;
+  line-height: 1.6;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.api-docs h3 {
+  font-family: var(--font-heading);
+  font-size: 14.5px;
+  color: var(--ink);
+  margin-top: 10px;
+}
+.api-docs ul {
+  padding-left: 18px;
+}
+.api-docs code {
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  background: var(--paper);
+  padding: 1px 5px;
+  border-radius: 4px;
+}
+.code-block {
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  background: var(--ink);
+  color: #e6ebf5;
+  padding: 12px 14px;
+  border-radius: 9px;
+  overflow-x: auto;
+  white-space: pre;
+}

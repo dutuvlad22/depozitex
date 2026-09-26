@@ -12,6 +12,7 @@ export type OrderRow = {
   order_no: string;
   status: string;
   created_at: string;
+  source: string;
   clients: { name: string } | null;
   order_lines: { id: string; quantity: number; products: { sku: string; name: string } | null }[];
   shipments: { awb: string; courier: string }[];
@@ -31,7 +32,7 @@ const STATUS_NEXT: Record<string, string> = {
 };
 
 const ORDER_SELECT =
-  "id, order_no, status, created_at, clients(name), order_lines(id, quantity, products(sku, name)), shipments(awb, courier)";
+  "id, order_no, status, created_at, source, clients(name), order_lines(id, quantity, products(sku, name)), shipments(awb, courier)";
 
 function emptyLine(): LineDraft {
   return { productId: "", quantity: "1" };
@@ -163,6 +164,7 @@ export default function OrdersManager({
         order_no: trimmedOrderNo,
         status: "nou",
         created_at: new Date().toISOString(),
+        source: "manual",
         clients: { name: clientName },
         order_lines: payloadLines.map((l, i) => ({
           id: `local-${i}`,
@@ -359,6 +361,11 @@ export default function OrdersManager({
                   <div key={o.id} className="order-card">
                     <div className="order-top">
                       <span className="mono strong">{o.order_no}</span>
+                      {o.source === "api" && (
+                        <span className="source-tag" title="Comanda primita automat prin API">
+                          API
+                        </span>
+                      )}
                       <span className="muted small">
                         {new Date(o.created_at).toLocaleDateString("ro-RO")}
                       </span>

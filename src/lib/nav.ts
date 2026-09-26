@@ -1,5 +1,6 @@
 import {
   ChartColumn,
+  KeyRound,
   LayoutDashboard,
   PackagePlus,
   Boxes,
@@ -34,4 +35,5 @@ export const NAV: NavItem[] = [
   { href: "/rapoarte", label: "Rapoarte", icon: ChartColumn },
   { href: "/echipa", label: "Echipa", icon: UserCog },
   { href: "/setari/curier", label: "Setari curier", icon: Settings, adminOnly: true },
+  { href: "/setari/api", label: "API clienti", icon: KeyRound, adminOnly: true },
 ];

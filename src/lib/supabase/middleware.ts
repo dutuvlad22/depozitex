@@ -4,7 +4,8 @@ import { NextResponse, type NextRequest } from "next/server";
 const PUBLIC_PATHS = ["/login", "/register", "/forgot-password"];
 // Accesibile oricui, fara redirect nici pentru userul logat (linkuri din email).
 // /api/internal: joburi programate pe server, care se autorizeaza singure (CRON_SECRET).
-const OPEN_PATHS = ["/auth/callback", "/auth/confirm", "/api/internal"];
+// /api/v1: API-ul public pentru clienti, autorizat prin cheia API a clientului.
+const OPEN_PATHS = ["/auth/callback", "/auth/confirm", "/api/internal", "/api/v1"];
 
 function matches(paths: string[], pathname: string) {
   return paths.some((p) => pathname === p || pathname.startsWith(`${p}/`));

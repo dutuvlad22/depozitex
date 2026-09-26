@@ -22,7 +22,7 @@ export default async function ComenziPage() {
     supabase
       .from("orders")
       .select(
-        "id, order_no, status, created_at, clients(name), order_lines(id, quantity, products(sku, name)), shipments(awb, courier)"
+        "id, order_no, status, created_at, source, clients(name), order_lines(id, quantity, products(sku, name)), shipments(awb, courier)"
       )
       .eq("organization_id", organizationId)
       .order("created_at", { ascending: false })
