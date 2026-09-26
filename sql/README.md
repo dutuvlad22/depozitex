@@ -30,3 +30,13 @@ aplicatia local, apoi se aplica pe productie:
 ```
 
 `reset.sql` sterge TOATE tabelele si datele (nu si conturile). Scriptul refuza sa-l ruleze pe productie.
+
+## Organizatii noi
+
+Site-ul de productie e public (pentru API-ul clientilor), asa ca acolo crearea de
+organizatii noi e oprita: cine isi face cont poate doar intra cu un cod de invitatie
+(pagina Echipa). Pe test e permisa. Pentru a schimba pe productie (`true` / `false`):
+
+```bash
+ssh root@178.104.187.48 "docker exec supabase-db psql -U postgres -c \"update platform_settings set value = 'true' where key = 'allow_new_organizations'\""
+```

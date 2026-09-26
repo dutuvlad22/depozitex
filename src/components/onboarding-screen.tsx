@@ -13,9 +13,11 @@ function slugify(name: string) {
   return `${base}-${suffix}`;
 }
 
-export default function OnboardingScreen() {
+// allowCreate=false: crearea de organizatii e oprita pe platforma (vezi
+// sql/13_organizatii-noi.sql) — userul nou poate doar intra cu cod de invitatie.
+export default function OnboardingScreen({ allowCreate }: { allowCreate: boolean }) {
   const router = useRouter();
-  const [mode, setMode] = useState<"create" | "join">("create");
+  const [mode, setMode] = useState<"create" | "join">(allowCreate ? "create" : "join");
 
   const [orgName, setOrgName] = useState("");
   const [inviteCode, setInviteCode] = useState("");
@@ -139,17 +141,21 @@ export default function OnboardingScreen() {
         {error && <div className="auth-msg err">{error}</div>}
 
         <div className="auth-switch">
-          <button
-            type="button"
-            className="auth-linklike"
-            onClick={() => {
-              setError(null);
-              setMode(mode === "create" ? "join" : "create");
-            }}
-          >
-            {mode === "create" ? "Am un cod de invitatie" : "Vreau sa creez o organizatie noua"}
-          </button>
-          <span style={{ margin: "0 8px", color: "var(--line)" }}>·</span>
+          {allowCreate && (
+            <>
+              <button
+                type="button"
+                className="auth-linklike"
+                onClick={() => {
+                  setError(null);
+                  setMode(mode === "create" ? "join" : "create");
+                }}
+              >
+                {mode === "create" ? "Am un cod de invitatie" : "Vreau sa creez o organizatie noua"}
+              </button>
+              <span style={{ margin: "0 8px", color: "var(--line)" }}>·</span>
+            </>
+          )}
           <button type="button" className="auth-linklike" onClick={handleSignOut}>
             Deconectare
           </button>

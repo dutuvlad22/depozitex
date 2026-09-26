@@ -30,7 +30,8 @@ export default async function AppGroupLayout({
   // sau sa se alature cu un cod de invitatie, in loc sa randam
   // aplicatia (fara organizatie nu e ce afisa).
   if (!membership) {
-    return <OnboardingScreen />;
+    const { data: allowCreate } = await supabase.rpc("new_organizations_allowed");
+    return <OnboardingScreen allowCreate={allowCreate !== false} />;
   }
 
   const role = membership.role as string;
