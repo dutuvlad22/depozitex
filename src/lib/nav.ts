@@ -1,4 +1,5 @@
 import {
+  ChartColumn,
   LayoutDashboard,
   PackagePlus,
   Boxes,
@@ -30,6 +31,7 @@ export const NAV: NavItem[] = [
   { href: "/comenzi", label: "Comenzi", icon: ClipboardList },
   { href: "/expediere", label: "Expediere", icon: Truck },
   { href: "/retururi", label: "Retururi", icon: RotateCcw },
+  { href: "/rapoarte", label: "Rapoarte", icon: ChartColumn },
   { href: "/echipa", label: "Echipa", icon: UserCog },
   { href: "/setari/curier", label: "Setari curier", icon: Settings, adminOnly: true },
 ];

@@ -1002,3 +1002,112 @@ td.actions {
   background: #000;
   display: block;
 }
+
+/* RAPOARTE */
+.report-tabs {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid var(--line);
+  overflow-x: auto;
+}
+.report-tabs a {
+  padding: 9px 14px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--muted);
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  white-space: nowrap;
+}
+.report-tabs a:hover {
+  color: var(--ink);
+}
+.report-tabs a.active {
+  color: var(--ink);
+  border-bottom-color: var(--amber);
+}
+.report-filters {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.report-filters .field input,
+.report-filters .field select {
+  min-width: 170px;
+}
+.chips {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.chip {
+  padding: 6px 12px;
+  border-radius: 20px;
+  border: 1px solid var(--line);
+  background: #fff;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--ink2);
+}
+.chip:hover {
+  border-color: #c7cdd8;
+}
+.chip.active {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: #fff;
+}
+tfoot td {
+  padding: 12px 16px;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--ink);
+  background: #fafbfc;
+  border-top: 1px solid var(--line);
+}
+.report-note {
+  font-size: 12.5px;
+  color: var(--muted);
+  line-height: 1.5;
+  max-width: 760px;
+}
+.report-age {
+  color: var(--muted);
+}
+.qty-in {
+  color: var(--green);
+}
+.qty-out {
+  color: var(--red);
+}
+.pager {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+}
+.kpi-grid.report-kpis {
+  grid-template-columns: repeat(5, 1fr);
+}
+.report-two-col {
+  align-items: start;
+}
+table.compact thead th {
+  padding: 8px 10px;
+  background: none;
+}
+table.compact tbody td {
+  padding: 8px 10px;
+  font-size: 13px;
+}
+@media (max-width: 1100px) {
+  .kpi-grid.report-kpis {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+.report-table th,
+.report-table td {
+  white-space: nowrap;
+  padding-left: 12px;
+  padding-right: 12px;
+}

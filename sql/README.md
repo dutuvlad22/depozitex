@@ -1,6 +1,6 @@
 # Schema bazei de date
 
-Fisierele numerotate se aplica **in ordine** (01 → 09) pe o baza Supabase noua.
+Fisierele numerotate se aplica **in ordine** (01, 02, ...) pe o baza Supabase noua.
 Toate sunt idempotente: pot fi rulate din nou fara sa piarda date.
 
 Pe VPS exista doua baze separate:
@@ -15,18 +15,18 @@ Pe VPS exista doua baze separate:
 
 ## Modificari de schema
 
-Un fisier nou (ex. `10_ceva.sql`, idempotent) se aplica intai pe test, se verifica
+Un fisier nou (ex. `12_ceva.sql`, idempotent) se aplica intai pe test, se verifica
 aplicatia local, apoi se aplica pe productie:
 
 ```bash
-./sql/apply.sh test sql/10_ceva.sql
-./sql/apply.sh prod sql/10_ceva.sql   # cere confirmare si face backup inainte
+./sql/apply.sh test sql/12_ceva.sql
+./sql/apply.sh prod sql/12_ceva.sql   # cere confirmare si face backup inainte
 ```
 
 ## Baza de test de la zero
 
 ```bash
-./sql/apply.sh test sql/reset.sql sql/0*.sql
+./sql/apply.sh test sql/reset.sql sql/[0-9]*.sql
 ```
 
 `reset.sql` sterge TOATE tabelele si datele (nu si conturile). Scriptul refuza sa-l ruleze pe productie.
