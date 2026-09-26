@@ -1181,3 +1181,186 @@ table.compact tbody td {
   overflow-x: auto;
   white-space: pre;
 }
+
+/* PICKING (ecran pentru telefon) */
+.picking {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-width: 560px;
+}
+.picking-queue,
+.picking-done {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 28px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-align: center;
+  color: var(--muted);
+}
+.picking-done {
+  color: var(--green);
+  font-size: 15px;
+}
+.picking-done div:not(.muted) {
+  color: var(--ink);
+}
+.picking-count {
+  font-family: var(--font-heading);
+  font-size: 44px;
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1;
+}
+.picking-next {
+  width: 100%;
+  margin-top: 10px;
+  padding: 17px;
+  border: none;
+  border-radius: 12px;
+  background: var(--amber);
+  color: var(--ink);
+  font-family: inherit;
+  font-size: 17px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.picking-next:disabled {
+  opacity: 0.6;
+}
+.picking-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.picking-order {
+  font-size: 20px;
+}
+.picking-progress {
+  font-family: var(--font-heading);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--ink);
+}
+.picking-bar {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--line);
+  overflow: hidden;
+}
+.picking-bar div {
+  height: 100%;
+  background: var(--green);
+  transition: width 0.2s;
+}
+.picking-scan {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.picking-camera {
+  justify-content: center;
+  padding: 13px;
+  font-size: 15px;
+}
+.picking-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.pick-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 12px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--amber);
+  border-radius: 10px;
+  padding: 12px;
+}
+.pick-row.done {
+  border-left-color: var(--green);
+  background: #f4fbf8;
+}
+.pick-row.over {
+  border-left-color: var(--red);
+}
+.pick-loc {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-mono);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ink);
+  background: var(--paper);
+  padding: 6px 9px;
+  border-radius: 8px;
+}
+.pick-info {
+  min-width: 0;
+}
+.pick-qty {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.pick-count {
+  font-family: var(--font-mono);
+  font-size: 16px;
+  font-weight: 700;
+  min-width: 44px;
+  text-align: center;
+}
+.pick-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: #fff;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  color: var(--ink);
+}
+.pick-btn:disabled {
+  opacity: 0.35;
+}
+.picking-finish {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-bottom: 20px;
+}
+.picking-confirm {
+  display: flex;
+  gap: 10px;
+}
+.picking-confirm .btn {
+  flex: 1;
+  justify-content: center;
+  padding: 13px;
+}
+.order-picker {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.order-picker-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}

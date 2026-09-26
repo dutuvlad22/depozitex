@@ -2,7 +2,17 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { ArrowRight, ClipboardList, Plus, ScanLine, Search, Trash2, Truck } from "lucide-react";
+import {
+  ArrowRight,
+  ClipboardList,
+  Plus,
+  ScanLine,
+  Search,
+  Trash2,
+  Truck,
+  Undo2,
+  UserRound,
+} from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
 export type ClientOption = { id: string; name: string };
@@ -14,6 +24,7 @@ export type OrderRow = {
   created_at: string;
   source: string;
   clients: { name: string } | null;
+  assignee: { email: string | null } | null;
   order_lines: { id: string; quantity: number; products: { sku: string; name: string } | null }[];
   shipments: { awb: string; courier: string }[];
 };
@@ -32,7 +43,7 @@ const STATUS_NEXT: Record<string, string> = {
 };
 
 const ORDER_SELECT =
-  "id, order_no, status, created_at, source, clients(name), order_lines(id, quantity, products(sku, name)), shipments(awb, courier)";
+  "id, order_no, status, created_at, source, clients(name), assignee:profiles!orders_assigned_to_fkey(email), order_lines(id, quantity, products(sku, name)), shipments(awb, courier)";
 
 function emptyLine(): LineDraft {
   return { productId: "", quantity: "1" };
@@ -166,6 +177,7 @@ export default function OrdersManager({
         created_at: new Date().toISOString(),
         source: "manual",
         clients: { name: clientName },
+        assignee: null,
         order_lines: payloadLines.map((l, i) => ({
           id: `local-${i}`,
           quantity: l.quantity,
@@ -209,6 +221,16 @@ export default function OrdersManager({
     if (!fetchError && data) {
       setOrders((prev) => prev.map((o) => (o.id === order.id ? (data as unknown as OrderRow) : o)));
     }
+  }
+
+  async function handleRelease(order: OrderRow) {
+    setError(null);
+    const { error: rpcError } = await createClient().rpc("release_order", { p_order_id: order.id });
+    if (rpcError) {
+      setError(rpcError.message);
+      return;
+    }
+    setOrders((prev) => prev.map((o) => (o.id === order.id ? { ...o, assignee: null } : o)));
   }
 
   async function handleDelete(order: OrderRow) {
@@ -392,6 +414,23 @@ export default function OrdersManager({
                     {shipment && (
                       <div className="order-awb">
                         <Truck size={12} /> {shipment.awb} · {shipment.courier}
+                      </div>
+                    )}
+                    {status === "de_pregatit" && (
+                      <div className="order-picker">
+                        <UserRound size={12} />
+                        <span className="order-picker-name">
+                          {o.assignee?.email ?? "Asteapta un picker"}
+                        </span>
+                        {isAdmin && o.assignee && (
+                          <button
+                            className="icon-btn"
+                            title="Elibereaza comanda: urmatorul picker liber o preia de unde a ramas"
+                            onClick={() => handleRelease(o)}
+                          >
+                            <Undo2 size={13} />
+                          </button>
+                        )}
                       </div>
                     )}
                     {confirmDeleteId === o.id ? (

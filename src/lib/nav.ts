@@ -7,6 +7,7 @@ import {
   ClipboardList,
   Truck,
   RotateCcw,
+  ScanBarcode,
   Users,
   Warehouse,
   Package,
@@ -24,6 +25,7 @@ export type NavItem = {
 
 export const NAV: NavItem[] = [
   { href: "/", label: "Panou", icon: LayoutDashboard },
+  { href: "/picking", label: "Picking", icon: ScanBarcode },
   { href: "/clienti", label: "Clienti", icon: Users },
   { href: "/produse", label: "Produse", icon: Package },
   { href: "/depozite", label: "Depozite", icon: Warehouse },
