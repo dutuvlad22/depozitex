@@ -1535,3 +1535,42 @@ table.compact tbody td {
     background: #fff;
   }
 }
+
+/* CARUCIOARE: editare denumiri */
+.upper {
+  text-transform: uppercase;
+}
+.box-name-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 8px;
+}
+.box-name {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.box-name input {
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font-size: 13.5px;
+  min-width: 0;
+  outline: none;
+}
+.box-name input:focus {
+  border-color: var(--amber);
+}
+.edit-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+.edit-deactivate {
+  margin-left: auto;
+  color: var(--red);
+}
+tr.row-editing td {
+  background: #fef9ec;
+}

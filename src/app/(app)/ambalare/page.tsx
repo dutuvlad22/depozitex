@@ -1,6 +1,6 @@
 import PackingStation, { type PackBox, type PackOrder } from "@/components/packing-station";
 import { requireOrgContext } from "@/lib/org-context";
-import { normalizeCartCode } from "@/lib/cart-codes";
+import { allBoxNames, normalizeCode } from "@/lib/cart-codes";
 import { param, type SearchParams } from "@/lib/reports/period";
 
 type BoxQuery = {
@@ -12,7 +12,7 @@ type BoxQuery = {
 export default async function AmbalarePage({ searchParams }: { searchParams: Promise<SearchParams> }) {
   const sp = await searchParams;
   const { supabase, organizationId } = await requireOrgContext();
-  const cartCode = normalizeCartCode(param(sp, "carucior"));
+  const cartCode = normalizeCode(param(sp, "carucior"));
   const boxNo = Number.parseInt(param(sp, "cutie"), 10) || null;
 
   // caruciorele care asteapta la ambalare (ca sa nu fie nevoie de scanare daca e unul singur)
@@ -32,12 +32,13 @@ export default async function AmbalarePage({ searchParams }: { searchParams: Pro
 
   let cartError: string | null = null;
   let boxes: PackBox[] = [];
+  let boxNames: string[] = [];
   let order: PackOrder | null = null;
 
   if (cartCode) {
     const { data: run } = await supabase
       .from("cart_runs")
-      .select("id, status, carts!inner(code), cart_run_boxes(box_no, packed_at, orders(id, order_no, status, clients(name)))")
+      .select("id, status, carts!inner(code, capacity, box_labels), cart_run_boxes(box_no, packed_at, orders(id, order_no, status, clients(name)))")
       .eq("organization_id", organizationId)
       .eq("carts.code", cartCode)
       .neq("status", "inchis")
@@ -48,6 +49,8 @@ export default async function AmbalarePage({ searchParams }: { searchParams: Pro
     } else if (run.status === "picking") {
       cartError = `Caruciorul ${cartCode} e inca in picking. Pickerul trebuie sa apese „Carucior gata”.`;
     } else {
+      const cart = run.carts as unknown as { capacity: number; box_labels: string[] | null };
+      boxNames = allBoxNames(cart.box_labels, cart.capacity);
       boxes = ((run.cart_run_boxes ?? []) as unknown as BoxQuery[])
         .map((b) => ({
           box: b.box_no,
@@ -102,6 +105,7 @@ export default async function AmbalarePage({ searchParams }: { searchParams: Pro
       cartCode={cartCode || null}
       cartError={cartError}
       waitingCarts={waitingCarts}
+      boxNames={boxNames}
       boxes={boxes}
       order={order}
     />

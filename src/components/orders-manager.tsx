@@ -14,7 +14,7 @@ import {
   UserRound,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-import { boxLabel } from "@/lib/cart-codes";
+import { boxName } from "@/lib/cart-codes";
 
 export type ClientOption = { id: string; name: string };
 export type ProductOption = { id: string; sku: string; name: string; client_id: string };
@@ -29,7 +29,10 @@ export type OrderRow = {
   order_lines: { id: string; quantity: number; products: { sku: string; name: string } | null }[];
   shipments: { awb: string; courier: string }[];
   // cutiile in care a stat comanda (inclusiv ture de carucior inchise)
-  cart_run_boxes: { box_no: number; cart_runs: { status: string; carts: { code: string } | null } | null }[];
+  cart_run_boxes: {
+    box_no: number;
+    cart_runs: { status: string; carts: { code: string; box_labels: string[] | null } | null } | null;
+  }[];
 };
 
 type LineDraft = { productId: string; quantity: string };
@@ -383,7 +386,7 @@ export default function OrdersManager({
                       <div className="order-picker">
                         <ShoppingCart size={12} />
                         <span className="order-picker-name mono">
-                          {box.cart_runs?.carts?.code} · {boxLabel(box.box_no)}
+                          {box.cart_runs?.carts?.code} · {boxName(box.cart_runs?.carts?.box_labels, box.box_no)}
                         </span>
                       </div>
                     )}

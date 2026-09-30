@@ -1,5 +1,6 @@
 import PickingStation, { type CartRun, type PickRow } from "@/components/picking-station";
 import { requireOrgContext } from "@/lib/org-context";
+import { allBoxNames } from "@/lib/cart-codes";
 
 type PickLineQuery = {
   id: string;
@@ -16,7 +17,7 @@ export default async function PickingPage() {
     // caruciorul pe care pickerul il are in lucru (unul singur odata)
     supabase
       .from("cart_runs")
-      .select("id, carts(code), cart_run_boxes(box_no, order_id, orders(order_no))")
+      .select("id, carts(code, capacity, box_labels), cart_run_boxes(box_no, order_id, orders(order_no))")
       .eq("organization_id", organizationId)
       .eq("picker_id", user.id)
       .eq("status", "picking")
@@ -64,9 +65,11 @@ export default async function PickingPage() {
           a.box - b.box
       );
 
+    const cart = run.carts as unknown as { code: string; capacity: number; box_labels: string[] | null } | null;
     current = {
       id: run.id,
-      cartCode: (run.carts as unknown as { code: string } | null)?.code ?? "—",
+      cartCode: cart?.code ?? "—",
+      boxNames: allBoxNames(cart?.box_labels, cart?.capacity ?? boxes.length),
       boxCount: boxes.length,
       rows,
     };

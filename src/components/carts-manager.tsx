@@ -3,15 +3,23 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Printer, ShoppingCart } from "lucide-react";
+import { Pencil, Printer, ShoppingCart } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-import { MAX_CART_CAPACITY, nextCartCode, normalizeCartCode } from "@/lib/cart-codes";
+import {
+  MAX_CART_CAPACITY,
+  allBoxNames,
+  defaultBoxLabel,
+  nextCartCode,
+  normalizeCode,
+  validateCartNames,
+} from "@/lib/cart-codes";
 
 export type CartRow = {
   id: string;
   code: string;
   capacity: number;
   active: boolean;
+  box_labels: string[] | null; // null = denumirile implicite CUT01..CUTnn
   // doar tura deschisa (picking / la ambalare), daca exista
   cart_runs: {
     id: string;
@@ -21,6 +29,8 @@ export type CartRow = {
     cart_run_boxes: { packed_at: string | null }[];
   }[];
 };
+
+type Draft = { id: string; code: string; names: string[] };
 
 export default function CartsManager({
   organizationId,
@@ -35,13 +45,18 @@ export default function CartsManager({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [confirmReleaseId, setConfirmReleaseId] = useState<string | null>(null);
+  const [draft, setDraft] = useState<Draft | null>(null);
+  const [editError, setEditError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [savedId, setSavedId] = useState<string | null>(null);
 
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
-    const normalized = normalizeCartCode(code);
-    if (!/^[A-Z0-9-]{1,20}$/.test(normalized)) {
-      setError("Codul poate contine doar litere, cifre si cratima (ex. CAR01).");
+    const normalized = normalizeCode(code);
+    const invalid = validateCartNames(normalized, []);
+    if (invalid) {
+      setError(invalid);
       return;
     }
     setBusy(true);
@@ -57,10 +72,11 @@ export default function CartsManager({
     router.refresh();
   }
 
-  async function toggleActive(cart: CartRow) {
+  async function setActive(cart: CartRow, active: boolean) {
     setError(null);
-    const { error } = await createClient().from("carts").update({ active: !cart.active }).eq("id", cart.id);
+    const { error } = await createClient().from("carts").update({ active }).eq("id", cart.id);
     if (error) setError(error.message);
+    setDraft(null);
     router.refresh();
   }
 
@@ -71,6 +87,40 @@ export default function CartsManager({
     if (error) setError(error.message);
     router.refresh();
   }
+
+  function startEdit(cart: CartRow) {
+    setEditError(null);
+    setSavedId(null);
+    setDraft({ id: cart.id, code: cart.code, names: allBoxNames(cart.box_labels, cart.capacity) });
+  }
+
+  async function saveEdit() {
+    if (!draft) return;
+    const newCode = normalizeCode(draft.code);
+    const names = draft.names.map(normalizeCode);
+    const invalid = validateCartNames(newCode, names);
+    if (invalid) {
+      setEditError(invalid);
+      return;
+    }
+    const isDefault = names.every((n, i) => n === defaultBoxLabel(i + 1));
+    setSaving(true);
+    setEditError(null);
+    const { error } = await createClient()
+      .from("carts")
+      .update({ code: newCode, box_labels: isDefault ? null : names })
+      .eq("id", draft.id);
+    setSaving(false);
+    if (error) {
+      setEditError(error.code === "23505" ? `Exista deja un carucior cu codul ${newCode}.` : error.message);
+      return;
+    }
+    setSavedId(draft.id);
+    setDraft(null);
+    router.refresh();
+  }
+
+  const editing = draft ? initialCarts.find((c) => c.id === draft.id) : null;
 
   return (
     <div className="stack">
@@ -105,7 +155,7 @@ export default function CartsManager({
           <thead>
             <tr>
               <th>Carucior</th>
-              <th className="num">Cutii</th>
+              <th>Cutii</th>
               <th>Stare</th>
               <th>Picker</th>
               <th />
@@ -123,10 +173,16 @@ export default function CartsManager({
               const run = c.cart_runs[0];
               const boxes = run?.cart_run_boxes ?? [];
               const packed = boxes.filter((b) => b.packed_at).length;
+              const names = allBoxNames(c.box_labels, c.capacity);
               return (
-                <tr key={c.id}>
+                <tr key={c.id} className={draft?.id === c.id ? "row-editing" : ""}>
                   <td className="mono strong">{c.code}</td>
-                  <td className="num">{c.capacity}</td>
+                  <td className="muted small">
+                    <span className="strong">{c.capacity}</span> ·{" "}
+                    <span className="mono">
+                      {names.length > 2 ? `${names[0]} … ${names[names.length - 1]}` : names.join(", ")}
+                    </span>
+                  </td>
                   <td>
                     {!c.active ? (
                       <span className="pill epuizat">Inactiv</span>
@@ -166,14 +222,19 @@ export default function CartsManager({
                             Elibereaza
                           </button>
                         ))}
+                      {!run && !c.active && (
+                        <button className="btn primary small" onClick={() => setActive(c, true)}>
+                          Activeaza
+                        </button>
+                      )}
+                      {!run && (
+                        <button className="btn ghost small" onClick={() => startEdit(c)}>
+                          <Pencil size={13} /> Editeaza
+                        </button>
+                      )}
                       <Link className="btn ghost small" href={`/setari/carucioare/${c.id}/etichete`}>
                         <Printer size={13} /> Etichete
                       </Link>
-                      {!run && (
-                        <button className="btn ghost small" onClick={() => toggleActive(c)}>
-                          {c.active ? "Dezactiveaza" : "Activeaza"}
-                        </button>
-                      )}
                     </span>
                   </td>
                 </tr>
@@ -182,6 +243,81 @@ export default function CartsManager({
           </tbody>
         </table>
       </div>
+
+      {savedId && (
+        <div className="hint">
+          Denumirile au fost salvate. Daca ai schimbat ceva,{" "}
+          <Link href={`/setari/carucioare/${savedId}/etichete`} className="strong">
+            printeaza din nou etichetele
+          </Link>{" "}
+          — cele vechi nu mai sunt recunoscute la scanare.
+        </div>
+      )}
+
+      {draft && editing && (
+        <section className="panel">
+          <div className="panel-head">
+            <Pencil size={16} /> Editeaza {editing.code}
+          </div>
+          <div className="form-row">
+            <div className="field">
+              <label htmlFor="edit-code">Codul caruciorului</label>
+              <input
+                id="edit-code"
+                className="mono upper"
+                value={draft.code}
+                onChange={(e) => setDraft({ ...draft, code: e.target.value })}
+              />
+            </div>
+          </div>
+
+          <div className="lines-head">Denumirile cutiilor ({editing.capacity})</div>
+          <div className="box-name-grid">
+            {draft.names.map((name, i) => (
+              <label key={i} className="box-name">
+                <span className="muted small">Cutia {i + 1}</span>
+                <input
+                  className="mono upper"
+                  value={name}
+                  maxLength={20}
+                  onChange={(e) =>
+                    setDraft({ ...draft, names: draft.names.map((n, j) => (j === i ? e.target.value : n)) })
+                  }
+                />
+              </label>
+            ))}
+          </div>
+          <div className="hint" style={{ marginTop: 10 }}>
+            Doar litere, cifre si cratima (ce se poate scana), fara spatii. Doua cutii de pe acelasi carucior nu
+            pot avea aceeasi denumire.
+          </div>
+
+          {editError && <div className="auth-msg err">{editError}</div>}
+
+          <div className="edit-actions">
+            <button className="btn primary" onClick={saveEdit} disabled={saving}>
+              {saving ? "Se salveaza..." : "Salveaza"}
+            </button>
+            <button className="btn ghost" onClick={() => setDraft(null)} disabled={saving}>
+              Renunta
+            </button>
+            <button
+              className="btn ghost"
+              onClick={() =>
+                setDraft({ ...draft, names: draft.names.map((_, i) => defaultBoxLabel(i + 1)) })
+              }
+              disabled={saving}
+            >
+              Denumiri implicite (CUT01…)
+            </button>
+            {editing.active && (
+              <button className="btn ghost edit-deactivate" onClick={() => setActive(editing, false)} disabled={saving}>
+                Dezactiveaza caruciorul
+              </button>
+            )}
+          </div>
+        </section>
+      )}
     </div>
   );
 }

@@ -7,7 +7,7 @@ import { ArrowLeft, Camera, CameraOff, CircleCheck, Minus, PackageCheck, Plus, S
 import CourierShippingPanel from "@/components/courier-shipping-panel";
 import { createClient } from "@/lib/supabase/client";
 import { useBarcodeScanner } from "@/lib/use-barcode-scanner";
-import { boxLabel, normalizeCartCode, parseBoxCode } from "@/lib/cart-codes";
+import { boxName, findBox, normalizeCode } from "@/lib/cart-codes";
 
 export type PackBox = { box: number; packed: boolean; orderId: string; orderNo: string; clientName: string };
 export type PackLine = { id: string; sku: string; name: string; quantity: number; picked: number; packed: number };
@@ -26,16 +26,19 @@ export default function PackingStation({
   cartCode,
   cartError,
   waitingCarts,
+  boxNames,
   boxes,
   order,
 }: {
   cartCode: string | null;
   cartError: string | null;
   waitingCarts: { code: string; left: number }[];
+  boxNames: string[]; // denumirile cutiilor caruciorului curent, pe pozitii
   boxes: PackBox[];
   order: PackOrder | null;
 }) {
   const router = useRouter();
+  const label = (boxNo: number) => boxName(boxNames, boxNo);
   const [boxState, setBoxState] = useState<PackBox[]>(boxes);
   const [lines, setLines] = useState<PackLine[]>(order?.lines ?? []);
   const [status, setStatus] = useState(order?.status ?? "");
@@ -50,23 +53,15 @@ export default function PackingStation({
     `/ambalare?carucior=${encodeURIComponent(code)}${box ? `&cutie=${box}` : ""}`;
 
   const scanner = useBarcodeScanner((code) => {
-    const boxCode = parseBoxCode(code);
-    // cutie: se deschide comanda din ea (pe caruciorul curent)
-    if (boxCode) {
-      if (!cartCode) {
-        setFeedback({ type: "err", text: "Scaneaza intai caruciorul." });
-        return;
-      }
-      if (boxCode.cart && boxCode.cart !== cartCode) {
-        setFeedback({ type: "err", text: `Cutia ${code} nu e de pe caruciorul ${cartCode}.` });
-        return;
-      }
-      if (!boxState.some((b) => b.box === boxCode.box)) {
-        setFeedback({ type: "err", text: `${boxLabel(boxCode.box)} e goala pe caruciorul ${cartCode}.` });
+    // cutie de pe caruciorul curent: se deschide comanda din ea
+    const box = cartCode ? findBox(code, cartCode, boxNames) : null;
+    if (cartCode && box) {
+      if (!boxState.some((b) => b.box === box)) {
+        setFeedback({ type: "err", text: `${label(box)} e goala pe caruciorul ${cartCode}.` });
         return;
       }
       scanner.stop();
-      router.push(cartUrl(cartCode, boxCode.box));
+      router.push(cartUrl(cartCode, box));
       return;
     }
     // produs: verificarea comenzii deschise
@@ -85,7 +80,7 @@ export default function PackingStation({
     }
     // altfel: cod de carucior
     scanner.stop();
-    router.push(cartUrl(normalizeCartCode(code)));
+    router.push(cartUrl(normalizeCode(code)));
   });
 
   async function changeQty(line: PackLine, delta: number, viaScan = false) {
@@ -154,7 +149,7 @@ export default function PackingStation({
             className="picking-manual"
             onSubmit={(e) => {
               e.preventDefault();
-              if (cartInput.trim()) router.push(cartUrl(normalizeCartCode(cartInput)));
+              if (cartInput.trim()) router.push(cartUrl(normalizeCode(cartInput)));
             }}
           >
             <input
@@ -208,7 +203,7 @@ export default function PackingStation({
         <div className="box-grid">
           {boxState.map((b) => (
             <Link key={b.box} href={cartUrl(cartCode, b.box)} className={`box-tile ${b.packed ? "done" : ""}`}>
-              <span className="mono strong">{boxLabel(b.box)}</span>
+              <span className="mono strong">{label(b.box)}</span>
               <span className="small">{b.orderNo}</span>
               <span className="muted small">{b.packed ? "Ambalata" : b.clientName}</span>
             </Link>
@@ -231,7 +226,7 @@ export default function PackingStation({
       <div className="picking-head">
         <div>
           <div className="mono strong picking-order">
-            {boxLabel(order.box)} · {order.orderNo}
+            {label(order.box)} · {order.orderNo}
           </div>
           <div className="muted small">{order.clientName}</div>
         </div>
@@ -327,7 +322,7 @@ export default function PackingStation({
               </div>
             ) : (
               <Link href={cartUrl(cartCode, nextBox.box)} className="picking-next">
-                Urmatoarea cutie: {boxLabel(nextBox.box)}
+                Urmatoarea cutie: {label(nextBox.box)}
               </Link>
             )}
           </div>

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Camera, CameraOff, CircleCheck, MapPin, Minus, Plus, ShoppingCart, X } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { useBarcodeScanner } from "@/lib/use-barcode-scanner";
-import { boxLabel, normalizeCartCode, parseBoxCode } from "@/lib/cart-codes";
+import { boxName, findBox, normalizeCode } from "@/lib/cart-codes";
 
 export type PickRow = {
   id: string; // order_pick_lines.id
@@ -21,6 +21,7 @@ export type PickRow = {
 export type CartRun = {
   id: string;
   cartCode: string;
+  boxNames: string[]; // denumirile tuturor cutiilor caruciorului, pe pozitii
   boxCount: number;
   rows: PickRow[]; // ordonate: locatie, produs, cutie
 };
@@ -47,17 +48,14 @@ export default function PickingStation({
   const [confirmFinish, setConfirmFinish] = useState(false);
   const [finishing, setFinishing] = useState(false);
   const [finished, setFinished] = useState(false);
+  const label = (boxNo: number) => boxName(run?.boxNames, boxNo);
 
   const scanner = useBarcodeScanner((code) => (run ? handleScanInRun(code) : startRun(code)));
 
   // ---------- pornire carucior ----------
   async function startRun(code: string) {
-    const cart = normalizeCartCode(code);
+    const cart = normalizeCode(code);
     if (!cart) return;
-    if (parseBoxCode(cart)) {
-      setFeedback({ type: "err", text: `${cart} e o cutie. Scaneaza eticheta caruciorului.` });
-      return;
-    }
     setStarting(true);
     setFeedback(null);
     const { data, error } = await createClient().rpc("start_cart_run", {
@@ -85,20 +83,16 @@ export default function PickingStation({
 
   // ---------- scanare in timpul picking-ului ----------
   function handleScanInRun(code: string) {
-    const boxCode = parseBoxCode(code);
-    if (boxCode) {
-      if (boxCode.cart && boxCode.cart !== run?.cartCode) {
-        setFeedback({ type: "err", text: `Cutia ${code} nu e de pe caruciorul ${run?.cartCode}.` });
-        return;
-      }
+    const box = run ? findBox(code, run.cartCode, run.boxNames) : null;
+    if (box) {
       if (!pending) {
         setFeedback({ type: "err", text: "Scaneaza intai produsul, apoi cutia in care il pui." });
         return;
       }
-      if (boxCode.box !== pending.box) {
+      if (box !== pending.box) {
         setFeedback({
           type: "err",
-          text: `Cutie gresita (${boxLabel(boxCode.box)})! Pune produsul in ${boxLabel(pending.box)}.`,
+          text: `Cutie gresita (${label(box)})! Pune produsul in ${label(pending.box)}.`,
         });
         return;
       }
@@ -137,7 +131,7 @@ export default function PickingStation({
     const picked = (data as { picked_quantity: number }).picked_quantity;
     setRows((prev) => prev.map((r) => (r.id === row.id ? { ...r, picked } : r)));
     if (viaScan) {
-      setFeedback({ type: "ok", text: `${row.sku} in ${boxLabel(row.box)} — ${picked}/${row.quantity}` });
+      setFeedback({ type: "ok", text: `${row.sku} in ${label(row.box)} — ${picked}/${row.quantity}` });
     }
   }
 
@@ -238,7 +232,7 @@ export default function PickingStation({
           <div className="mono strong picking-order">{run.cartCode}</div>
           <div className="muted small">
             {run.boxCount} {run.boxCount === 1 ? "comanda" : "comenzi"} ·{" "}
-            {Array.from({ length: run.boxCount }, (_, i) => boxLabel(i + 1)).join(" ")}
+            {Array.from({ length: run.boxCount }, (_, i) => label(i + 1)).join(" ")}
           </div>
         </div>
         <div className="picking-progress">
@@ -256,7 +250,7 @@ export default function PickingStation({
           <div className="muted small">
             {pending.sku} · {pending.name}
           </div>
-          <div className="put-box-label">PUNE IN {boxLabel(pending.box)}</div>
+          <div className="put-box-label">PUNE IN {label(pending.box)}</div>
           <div className="small">Scaneaza eticheta cutiei ca sa confirmi.</div>
           <button className="btn ghost small" onClick={() => setPending(null)}>
             <X size={13} /> Anuleaza
@@ -284,10 +278,10 @@ export default function PickingStation({
                 <div className="pick-boxes">
                   {g.rows.map((r) => (
                     <div key={r.id} className={`pick-box ${r.picked >= r.quantity ? "done" : ""} ${pending?.id === r.id ? "active" : ""}`}>
-                      <span className="mono strong">{boxLabel(r.box)}</span>
+                      <span className="mono strong">{label(r.box)}</span>
                       <button
                         className="pick-btn small"
-                        aria-label={`Scade o bucata din ${boxLabel(r.box)}`}
+                        aria-label={`Scade o bucata din ${label(r.box)}`}
                         disabled={busyId === r.id || r.picked <= 0}
                         onClick={() => changeQty(r, -1)}
                       >
@@ -298,7 +292,7 @@ export default function PickingStation({
                       </span>
                       <button
                         className="pick-btn small"
-                        aria-label={`Adauga manual o bucata in ${boxLabel(r.box)}`}
+                        aria-label={`Adauga manual o bucata in ${label(r.box)}`}
                         disabled={busyId === r.id || r.picked >= r.quantity}
                         onClick={() => changeQty(r, 1)}
                       >

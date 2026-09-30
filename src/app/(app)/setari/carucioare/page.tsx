@@ -15,7 +15,7 @@ export default async function CarucioarePage() {
   const { data: carts } = await supabase
     .from("carts")
     .select(
-      "id, code, capacity, active, cart_runs(id, status, started_at, picker:profiles!cart_runs_picker_id_fkey(email), cart_run_boxes(packed_at))"
+      "id, code, capacity, active, box_labels, cart_runs(id, status, started_at, picker:profiles!cart_runs_picker_id_fkey(email), cart_run_boxes(packed_at))"
     )
     .eq("organization_id", organizationId)
     .neq("cart_runs.status", "inchis")

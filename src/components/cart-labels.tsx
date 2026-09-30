@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { ArrowLeft, Printer } from "lucide-react";
-import { boxLabel } from "@/lib/cart-codes";
+import { allBoxNames } from "@/lib/cart-codes";
 
 function QrCode({ value, size }: { value: string; size: number }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -25,8 +25,16 @@ function QrCode({ value, size }: { value: string; size: number }) {
 }
 
 /** Etichete de printat: caruciorul + fiecare cutie, cu QR citit de camera telefonului. */
-export default function CartLabels({ code, capacity }: { code: string; capacity: number }) {
-  const boxes = Array.from({ length: capacity }, (_, i) => boxLabel(i + 1));
+export default function CartLabels({
+  code,
+  capacity,
+  boxLabels,
+}: {
+  code: string;
+  capacity: number;
+  boxLabels: string[] | null;
+}) {
+  const boxes = allBoxNames(boxLabels, capacity);
 
   return (
     <div className="stack">
@@ -40,8 +48,8 @@ export default function CartLabels({ code, capacity }: { code: string; capacity:
       </div>
       <p className="muted small labels-toolbar">
         Eticheta mare se lipeste pe carucior, iar cele mici pe cutii (sau pe locurile cutiilor de pe
-        carucior). Codurile cutiilor se repeta pe fiecare carucior: CUT01 de pe {code} este cutia 1 a
-        acestui carucior.
+        carucior). Denumirile cutiilor sunt valabile doar pe acest carucior: {boxes[0]} de pe {code} e
+        alta cutie decat {boxes[0]} de pe alt carucior.
       </p>
 
       <div className="labels-sheet">

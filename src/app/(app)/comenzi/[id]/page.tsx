@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, PackageCheck, ShoppingCart } from "lucide-react";
 import CourierShippingPanel from "@/components/courier-shipping-panel";
 import { requireOrgContext } from "@/lib/org-context";
-import { boxLabel } from "@/lib/cart-codes";
+import { boxName } from "@/lib/cart-codes";
 
 const STATUS_LABEL: Record<string, string> = {
   nou: "Nou",
@@ -30,7 +30,10 @@ type Line = {
   order_pick_lines: { quantity: number; picked_quantity: number; locations: { code: string } | null }[];
 };
 
-type Box = { box_no: number; cart_runs: { status: string; carts: { code: string } | null } | null };
+type Box = {
+  box_no: number;
+  cart_runs: { status: string; carts: { code: string; box_labels: string[] | null } | null } | null;
+};
 
 export default async function OrderDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -39,7 +42,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
   const { data: order } = await supabase
     .from("orders")
     .select(
-      "id, order_no, status, created_at, source, clients(name), assignee:profiles!orders_assigned_to_fkey(email), cart_run_boxes(box_no, cart_runs(status, carts(code)))"
+      "id, order_no, status, created_at, source, clients(name), assignee:profiles!orders_assigned_to_fkey(email), cart_run_boxes(box_no, cart_runs(status, carts(code, box_labels)))"
     )
     .eq("id", id)
     .eq("organization_id", organizationId)
@@ -90,7 +93,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
       {cart && box && (
         <div className="hint">
           <ShoppingCart size={14} /> Caruciorul <span className="mono strong">{cart}</span>, cutia{" "}
-          <span className="mono strong">{boxLabel(box.box_no)}</span>
+          <span className="mono strong">{boxName(box.cart_runs?.carts?.box_labels, box.box_no)}</span>
           {status === "la_ambalare" && (
             <>
               {" · "}
